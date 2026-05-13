@@ -100,4 +100,4 @@ Row 24: ENTER=Fetch  F3=Back  F4=Clear  F5=Browse Tran.
 
 ---
 
-*Generated 2026-05-02 17:07*
+*Generated 2026-05-12 12:31*

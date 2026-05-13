@@ -26,7 +26,7 @@ from jinja2 import Environment, BaseLoader, TemplateNotFound
 from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 
-console = Console(force_terminal=True, highlight=False)
+console = Console(force_terminal=True, highlight=False, legacy_windows=False)
 
 
 # ============================================================

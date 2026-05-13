@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 
 from rich.console import Console
 from context_engine import apply_document_coverage
-console = Console(force_terminal=True, highlight=False)
+console = Console(force_terminal=True, highlight=False, legacy_windows=False)
 
 
 # ── State ──────────────────────────────────────────────────────────────────────

@@ -1,6 +1,6 @@
 # Artifact Documentation Agent Framework
 
-> Generated 2026-05-06 11:42
+> Generated 2026-05-12 12:32
 
 The standalone JCL/BMS documentation section uses a dedicated artifact agent
 pipeline, separate from the COBOL `DocGenerator`.

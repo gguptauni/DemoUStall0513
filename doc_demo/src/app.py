@@ -21,6 +21,7 @@ import sqlite3
 import pandas as pd
 import tempfile
 import io
+import traceback
 
 # Ensure src/ is on path when launched as `streamlit run src/app.py`
 sys.path.insert(0, str(Path(__file__).parent))
@@ -31,6 +32,42 @@ from orchestrator import run_pipeline
 from sqlite_loader import SQLiteLoader
 from doc_agent_pipeline import run_doc_pipeline
 from context_engine import build_context_package
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _project_path(path_value: str) -> str:
+    """Return an absolute path for repo-relative config values."""
+    raw = str(path_value or "").strip().strip('"').strip("'")
+    path = Path(raw or "data/cobol_knowledge.db")
+    if not path.is_absolute():
+        path = PROJECT_ROOT / path
+    return str(path)
+
+
+def _db_path() -> str:
+    configured = os.getenv("DB_PATH")
+    fallback = PROJECT_ROOT / "data" / "cobol_knowledge.db"
+    if not configured:
+        return str(fallback)
+    try:
+        candidate = Path(_project_path(configured))
+        if candidate.exists():
+            return str(candidate)
+    except (OSError, ValueError):
+        pass
+    return str(fallback)
+
+
+def _schema_path() -> str:
+    return str(PROJECT_ROOT / "schemas" / "cobol_knowledge.sql")
+
+
+def _sqlite_connect(path: str, **kwargs):
+    if os.name == "nt":
+        return sqlite3.connect(Path(path).resolve().as_uri(), uri=True, **kwargs)
+    return sqlite3.connect(path, **kwargs)
+
 
 st.set_page_config(
     page_title="COBOL Migration Hub",
@@ -54,71 +91,100 @@ html, body, [class*="css"] { font-family: 'Inter', sans-serif; }
 
 /* ── Sidebar shell ── */
 section[data-testid="stSidebar"] {
-    background-color: #1e1e1e;
-    border-right: 1px solid #2d2d2d;
+    background-color: #003c3c;
+    border-right: 4px solid #00df8f;
     padding: 0 !important;
     min-width: 230px !important;
     max-width: 230px !important;
 }
 section[data-testid="stSidebar"] > div:first-child { padding: 0 !important; }
+section[data-testid="stSidebar"] .stButton { width: 100% !important; }
+section[data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+    gap: 0 !important;
+}
+section[data-testid="stSidebar"] [data-testid="stElementContainer"] {
+    margin: 0 !important;
+}
 
 /* ── All sidebar buttons: flat, left-aligned ── */
 section[data-testid="stSidebar"] .stButton > button {
     background: transparent !important;
     border: none !important;
     border-radius: 0 !important;
-    color: #cccccc !important;
+    color: #ffffff !important;
     font-family: 'Inter', sans-serif !important;
-    font-size: 13px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
     text-align: left !important;
-    padding: 5px 10px 5px 14px !important;
+    padding: 9px 16px 9px 28px !important;
     width: 100% !important;
     justify-content: flex-start !important;
-    height: auto !important;
+    min-height: 42px !important;
+    height: 42px !important;
     box-shadow: none !important;
     margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    line-height: 1.2 !important;
+}
+section[data-testid="stSidebar"] .stButton > button p {
+    width: 100% !important;
+    margin: 0 !important;
+    text-align: left !important;
+    white-space: nowrap !important;
+}
+section[data-testid="stSidebar"] .stButton > button div,
+section[data-testid="stSidebar"] .stButton > button [data-testid="stMarkdownContainer"] {
+    width: 100% !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
 }
 section[data-testid="stSidebar"] .stButton > button:hover {
-    background-color: #2a2d2e !important;
-    color: #ffffff !important;
+    background-color: #00df8f !important;
+    color: #003c3c !important;
 }
 
 /* ── Active nav item ── */
 .nav-active > div > button {
-    background-color: #094771 !important;
-    color: #ffffff !important;
-    border-left: 2px solid #007acc !important;
+    background-color: #00df8f !important;
+    color: #003c3c !important;
+    border-left: 4px solid #00f0f0 !important;
+    font-weight: 700 !important;
 }
 
 /* ── Sidebar section labels ── */
 .sb-section {
     font-size: 10.5px;
     font-weight: 700;
-    color: #9d9d9d;
+    color: #c7ff78;
     text-transform: uppercase;
     letter-spacing: 1.3px;
-    padding: 14px 14px 4px 14px;
+    padding: 18px 16px 8px 24px;
     margin: 0;
     display: block;
+    text-align: left;
 }
 
 /* ── Tree file items (non-clickable) ── */
 .tree-file {
     font-size: 12.5px;
-    color: #bbbbbb;
-    padding: 3px 8px 3px 26px;
+    color: #ffffff;
+    padding: 4px 12px 4px 34px;
     font-family: 'Inter', sans-serif;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-align: left;
 }
 
 /* ── Expanders in sidebar ── */
 section[data-testid="stSidebar"] .streamlit-expanderHeader {
     font-size: 12px !important;
-    color: #cccccc !important;
+    color: #ffffff !important;
     background: transparent !important;
-    padding: 5px 14px !important;
+    padding: 7px 16px 7px 26px !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
 }
 section[data-testid="stSidebar"] .streamlit-expanderContent {
     background: transparent !important;
@@ -220,8 +286,7 @@ section[data-testid="stSidebar"] .streamlit-expanderContent {
 # 
 
 def get_loader():
-    db_path = os.getenv("DB_PATH", "data/cobol_knowledge.db")
-    return SQLiteLoader(db_path)
+    return SQLiteLoader(_db_path(), _schema_path())
 
 
 def db_connect():
@@ -233,10 +298,9 @@ def db_connect():
 def get_chat_engine():
     """Initialize KnowledgeBaseChat once, shared across all sessions."""
     from chat_cli import KnowledgeBaseChat
-    db_path = os.getenv("DB_PATH", "data/cobol_knowledge.db")
     groq_key = os.getenv("GROQ_API_KEY")
     model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
-    return KnowledgeBaseChat(db_path=db_path, groq_api_key=groq_key, model=model)
+    return KnowledgeBaseChat(db_path=_db_path(), groq_api_key=groq_key, model=model)
 
 def search_cobol_files(repo_path, query):
     results = []
@@ -353,10 +417,10 @@ def render_sidebar():
     with st.sidebar:
         # ── App header ───────────────────────────────────────────────────────
         st.markdown("""
-        <div style="background:#252526;padding:11px 14px 10px;
-                    border-bottom:1px solid #3c3c3c;margin-bottom:2px;">
-            <span style="font-size:12px;font-weight:700;color:#cccccc;
-                         letter-spacing:0.8px;text-transform:uppercase;">
+        <div style="background:#00df8f;padding:13px 18px 12px 26px;
+                    border-bottom:3px solid #00f0f0;margin-bottom:2px;text-align:left;">
+            <span style="font-size:11px;font-weight:800;color:#003c3c;
+                         letter-spacing:0.8px;text-transform:uppercase;white-space:nowrap;">
                 🔧 COBOL Migration Hub
             </span>
         </div>""", unsafe_allow_html=True)
@@ -383,7 +447,7 @@ def render_sidebar():
         if current == "JCL/BMS Docs":
             st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown('<div style="height:1px;background:#2d2d2d;margin:8px 0;"></div>',
+        st.markdown('<div style="height:1px;background:#007a78;margin:8px 0;"></div>',
                     unsafe_allow_html=True)
 
         # ── Dataset file tree ────────────────────────────────────────────────
@@ -431,7 +495,7 @@ def render_sidebar():
                     st.rerun()
 
                     
-        st.markdown('<div style="height:1px;background:#2d2d2d;margin:8px 0;"></div>',
+        st.markdown('<div style="height:1px;background:#007a78;margin:8px 0;"></div>',
                     unsafe_allow_html=True)
 
         # ── Pipeline controls ────────────────────────────────────────────────
@@ -474,6 +538,7 @@ def render_sidebar():
 
 def page_overview():
     st.header("System Overview")
+    db_path_for_error = _db_path()
     try:
         loader = db_connect()
         programs = loader.get_all_programs()
@@ -483,7 +548,21 @@ def page_overview():
         cg       = loader.get_call_graph()
         loader.close()
     except Exception as e:
-        st.error(f"Database not ready — run the pipeline first. ({e})")
+        try:
+            (PROJECT_ROOT / "streamlit_error.log").write_text(
+                traceback.format_exc(),
+                encoding="utf-8",
+            )
+        except Exception:
+            pass
+        st.error(
+            "Database not ready - run the pipeline first. "
+            f"Path: `{db_path_for_error}`. Error: {type(e).__name__}: {e}"
+        )
+        return
+
+    if "programs" not in locals():
+        st.info(f"Attempted database path: `{db_path_for_error}`")
         return
 
     online = [p for p in programs if p.get("program_type") == "ONLINE"]
@@ -509,8 +588,8 @@ def page_overview():
     )
 
     try:
-        _db_path_arch = os.getenv("DB_PATH", "data/cobol_knowledge.db")
-        _arch_conn = sqlite3.connect(_db_path_arch)
+        _db_path_arch = _db_path()
+        _arch_conn = _sqlite_connect(_db_path_arch)
         _jcl_arch_df = pd.read_sql_query(
             "SELECT DISTINCT job_name, step_name, program FROM jcl_steps "
             "WHERE COALESCE(program, '') != '' ORDER BY job_name, step_order",
@@ -621,8 +700,8 @@ def page_overview():
     else:
         # Query JCL→Program links
         try:
-            _db_path = os.getenv("DB_PATH", "data/cobol_knowledge.db")
-            _conn = sqlite3.connect(_db_path)
+            _db_file = _db_path()
+            _conn = _sqlite_connect(_db_file)
             _jcl_df = pd.read_sql_query(
                 "SELECT DISTINCT job_name, program FROM jcl_steps "
                 "WHERE program IS NOT NULL AND program != ''",
@@ -706,8 +785,8 @@ def page_overview():
 
         # Edges: Program → Copybook (dashed yellow)
         try:
-            _db_path2 = os.getenv("DB_PATH", "data/cobol_knowledge.db")
-            _conn2 = sqlite3.connect(_db_path2)
+            _db_file2 = _db_path()
+            _conn2 = _sqlite_connect(_db_file2)
             _cu_df = pd.read_sql_query("SELECT program_id, copybook_name FROM copybook_usage", _conn2)
             _conn2.close()
             for _, _row in _cu_df.iterrows():
@@ -822,8 +901,8 @@ def page_call_graph():
 
     # Query call frequency for edge thickness
     try:
-        db_path = os.getenv("DB_PATH", "data/cobol_knowledge.db")
-        conn_raw = sqlite3.connect(db_path)
+        db_path = _db_path()
+        conn_raw = _sqlite_connect(db_path)
         freq_df = pd.read_sql_query(
             "SELECT caller_program, called_program, COUNT(*) as freq "
             "FROM program_calls WHERE called_program != 'UNKNOWN' "
@@ -839,8 +918,8 @@ def page_call_graph():
     copybook_usage = []
     if show_copybooks:
         try:
-            db_path = os.getenv("DB_PATH", "data/cobol_knowledge.db")
-            conn_raw = sqlite3.connect(db_path)
+            db_path = _db_path()
+            conn_raw = _sqlite_connect(db_path)
             cb_df = pd.read_sql_query(
                 "SELECT program_id, copybook_name FROM copybook_usage", conn_raw
             )
@@ -962,8 +1041,8 @@ def page_dependency_matrix():
         return
 
     try:
-        db_path = os.getenv("DB_PATH", "data/cobol_knowledge.db")
-        conn_raw = sqlite3.connect(db_path)
+        db_path = _db_path()
+        conn_raw = _sqlite_connect(db_path)
         df = pd.read_sql_query("SELECT program_id, copybook_name FROM copybook_usage", conn_raw)
         conn_raw.close()
     except Exception as e:
@@ -1052,8 +1131,8 @@ def page_data_flow():
 
     # Query top files from DB
     try:
-        db_path = os.getenv("DB_PATH", "data/cobol_knowledge.db")
-        conn_raw = sqlite3.connect(db_path)
+        db_path = _db_path()
+        conn_raw = _sqlite_connect(db_path)
         try:
             files_df = pd.read_sql_query("SELECT program_id, file_name FROM files LIMIT 200", conn_raw)
             prog_file_pairs = [(r["program_id"], r["file_name"]) for _, r in files_df.iterrows()]
@@ -1429,9 +1508,9 @@ def page_cics():
     st.header("CICS Commands")
     st.caption("EXEC CICS commands extracted from COBOL source — screens, transfers, file ops, and more.")
 
-    db_path = os.getenv("DB_PATH", "data/cobol_knowledge.db")
+    db_path = _db_path()
     try:
-        conn = sqlite3.connect(db_path)
+        conn = _sqlite_connect(db_path)
         conn.row_factory = sqlite3.Row
     except Exception as e:
         st.error(f"Database not ready. ({e})")
@@ -1652,9 +1731,9 @@ def page_sql():
     st.header("SQL Operations (DB2)")
     st.caption("EXEC SQL statements extracted from COBOL source — tables, cursors, and DML usage.")
 
-    db_path = os.getenv("DB_PATH", "data/cobol_knowledge.db")
+    db_path = _db_path()
     try:
-        conn = sqlite3.connect(db_path, check_same_thread=False)
+        conn = _sqlite_connect(db_path, check_same_thread=False)
         conn.row_factory = sqlite3.Row
     except Exception as e:
         st.error(f"Database not ready. ({e})")
@@ -2010,7 +2089,7 @@ def page_artifact_docs(output_dir: str):
                         context = build_bms_agent_context(raw)
                         out_path = bms_dir / f"{subject}.md"
 
-                    db_path = os.getenv("DB_PATH", "data/cobol_knowledge.db")
+                    db_path = _db_path()
                     doc_text = run_artifact_doc_pipeline(
                         artifact_type=artifact_type,
                         subject=subject,
@@ -4002,7 +4081,7 @@ def page_doc_generator():
         st.error(f"Database not ready. ({e})")
         return
 
-    db_path = os.getenv("DB_PATH", "data/cobol_knowledge.db")
+    db_path = _db_path()
 
     # ── Mode selector ──────────────────────────────────────────────────────────
     col_mode, col_depth = st.columns([1, 1])

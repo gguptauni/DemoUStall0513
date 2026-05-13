@@ -31,7 +31,7 @@ from rich.table import Table
 from rich.text import Text
 from rich import box
 
-console = Console(force_terminal=True, highlight=False)
+console = Console(force_terminal=True, highlight=False, legacy_windows=False)
 
 
 # ============================================================

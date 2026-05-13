@@ -26,7 +26,7 @@ from typing import Dict, List, Set, Tuple
 from rich.console import Console
 from rich.table import Table
 
-console = Console(force_terminal=True, highlight=False)
+console = Console(force_terminal=True, highlight=False, legacy_windows=False)
 
 REQUIRED_PROGRAM_SECTIONS = [
     "## Business Purpose",

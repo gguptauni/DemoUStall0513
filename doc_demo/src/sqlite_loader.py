@@ -12,10 +12,18 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 from collections import defaultdict
 
-from rich.console import Console
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
 
-console = Console(force_terminal=True, highlight=False)
+
+class SafeConsole:
+    def print(self, *args, **kwargs):
+        try:
+            print(*[str(arg) for arg in args])
+        except Exception:
+            pass
+
+
+console = SafeConsole()
 
 
 class SQLiteLoader:
@@ -31,7 +39,8 @@ class SQLiteLoader:
         Path(self.db_path).parent.mkdir(parents=True, exist_ok=True)
         # check_same_thread=False so the loader can be cached across Streamlit reruns
         # (Streamlit dispatches reruns on different threads).
-        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
+        db_target = Path(self.db_path).resolve().as_uri() if os.name == "nt" else self.db_path
+        self.conn = sqlite3.connect(db_target, check_same_thread=False, uri=os.name == "nt")
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON")
 

@@ -1,6 +1,6 @@
 # Standalone Artifact English Documentation
 
-> Generated 2026-05-06 11:42
+> Generated 2026-05-12 12:32
 
 This section is separate from the COBOL program documentation generator. It
 documents non-COBOL mainframe artifacts as first-class migration inputs.

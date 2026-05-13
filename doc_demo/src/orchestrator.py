@@ -1,6 +1,17 @@
 """
 COBOL Documentation Pipeline Orchestrator
-Coordinates: ProLeap Parse -> SQLite Load -> (Optional LLM Enrich) -> Doc Generation
+
+Two enrichment modes:
+  [Mode A - Default] Step 1a→1b → Step 2 (JSON enrichment) → Step 3 (SQLite) → Step 5 (Neo4j) → Step 4 (Docs)
+  [Mode B - Graph Enrichment] Step 1a→1b → Step 3 (SQLite) → Step 5 (Neo4j) → Step 5b (Neo4j enrichment) → Step 4 (Docs)
+
+Step 1a: Parse JCL files
+Step 1b: Parse COBOL with ProLeap -> parsed_output/
+Step 2:  Optional LLM Enrichment on JSON (langgraph_enricher) -> enriched_output/ [skipped in Mode B]
+Step 3:  Load into SQLite Knowledge Base
+Step 4:  Generate Markdown Docs + Streamlit Dashboard
+Step 5:  Neo4j Export (Optional)
+Step 5b: Neo4j Graph-Based LLM Enrichment [Mode B only]
 """
 
 import os
@@ -102,6 +113,7 @@ def run_pipeline(
     neo4j_password: str = None,
     cobol_format: str = None,        # auto-detected if None
     system_name: str = None,
+    graph_enrich_after_neo4j: bool = False,  # NEW: Use Neo4j-based enrichment instead of JSON
 ):
     ensure_env()
     print_banner()
@@ -111,6 +123,11 @@ def run_pipeline(
     parsed_dir  = Path("parsed_output")
     enriched_dir = Path("enriched_output")
     jcl_jobs = []
+    
+    # If using graph-based enrichment, always skip JSON enrichment
+    if graph_enrich_after_neo4j:
+        skip_enrich = True
+        skip_neo4j = False  # Must export to Neo4j to enrich
 
     # Auto-detect COBOL format if caller didn't specify
     if not cobol_format:
@@ -207,7 +224,11 @@ def run_pipeline(
             skip_enrich = True
         console.print()
     else:
-        console.print("[yellow]>> Skipping enrichment step[/yellow]")
+        if graph_enrich_after_neo4j:
+            console.print("[cyan]>> Skipping JSON enrichment (will use Neo4j-based enrichment after export)[/cyan]")
+        else:
+            console.print("[yellow]>> Skipping enrichment step[/yellow]")
+        console.print()
 
     # ========================================
     # Step 3: Load into SQLite
@@ -247,6 +268,46 @@ def run_pipeline(
     console.print(f"[green]OK - DB: {len(programs)} programs, {len(rules)} rules, {len(screens)} screens[/green]")
     console.print()
 
+    # ========================================
+    # Step 4/5 routing: Doc generation vs Neo4j export
+    # ========================================
+    # If graph-enriching, export to Neo4j BEFORE generating docs so enrichment feeds into doc generation
+    if graph_enrich_after_neo4j:
+        # Move Neo4j export here (before doc generation)
+        console.print(Panel("[bold]Step 5: Exporting to Neo4j (for graph enrichment)[/bold]", style="blue"))
+        neo4j_driver = None
+        try:
+            from neo4j_exporter import Neo4jExporter
+            exporter = Neo4jExporter(uri=neo4j_uri, user=neo4j_user, password=neo4j_password)
+            exporter.connect()
+            exporter.export_from_sqlite(loader)
+            neo4j_driver = exporter.driver
+            # Don't close yet — we need it for enrichment
+            console.print("[green]OK - Exported to Neo4j[/green]")
+        except Exception as e:
+            console.print(f"[red]Neo4j export failed: {e}. Aborting graph enrichment.[/red]")
+            graph_enrich_after_neo4j = False
+        console.print()
+        
+        # Run Neo4j enrichment
+        if graph_enrich_after_neo4j and neo4j_driver:
+            console.print(Panel("[bold]Step 5b: LLM Enrichment via Neo4j Graph[/bold]", style="blue"))
+            try:
+                from neo4j_enricher import Neo4jEnricher
+                graph_enricher = Neo4jEnricher(neo4j_driver=neo4j_driver, model=groq_model)
+                enrich_results = graph_enricher.enrich_from_neo4j()
+                graph_enricher.save_enrichment_to_neo4j()
+                console.print(f"[green]OK - Enriched {enrich_results['total_enriched']} programs from graph[/green]")
+                if enrich_results['errors']:
+                    console.print(f"[yellow]  {len(enrich_results['errors'])} errors during enrichment[/yellow]")
+            except Exception as e:
+                console.print(f"[yellow]Warning: Neo4j enrichment failed: {e}. Continuing.[/yellow]")
+            console.print()
+            
+            # Close exporter driver
+            if neo4j_driver:
+                neo4j_driver.close()
+    
     # ========================================
     # Step 4: Generate Documentation
     # ========================================
@@ -298,9 +359,9 @@ def run_pipeline(
     console.print()
 
     # ========================================
-    # Step 5: Neo4j Export (Optional)
+    # Step 5: Neo4j Export (if not already done above)
     # ========================================
-    if not skip_neo4j:
+    if not skip_neo4j and not graph_enrich_after_neo4j:
         console.print(Panel("[bold]Step 5: Exporting to Neo4j[/bold]", style="blue"))
         try:
             from neo4j_exporter import Neo4jExporter
@@ -310,7 +371,7 @@ def run_pipeline(
             exporter.close()
         except Exception as e:
             console.print(f"[yellow]Neo4j export failed: {e}[/yellow]")
-    else:
+    elif not graph_enrich_after_neo4j:
         console.print("[yellow]>> Skipping Neo4j export[/yellow]")
 
     loader.close()
@@ -360,7 +421,9 @@ def main():
     parser.add_argument("--skip-parse", action="store_true")
     parser.add_argument("--skip-jcl", action="store_true", help="Skip JCL parsing step")
     parser.add_argument("--skip-enrich", action="store_true")
-    parser.add_argument("--neo4j", action="store_true")
+    parser.add_argument("--neo4j", action="store_true", help="Enable Neo4j export")
+    parser.add_argument("--graph-enrich-after-neo4j", action="store_true", 
+                        help="Use Neo4j graph-based enrichment after export (requires --neo4j)")
     parser.add_argument("--neo4j-uri", default=None)
     parser.add_argument("--neo4j-user", default=None)
     parser.add_argument("--neo4j-password", default=None)
@@ -376,6 +439,7 @@ def main():
         neo4j_uri=args.neo4j_uri, neo4j_user=args.neo4j_user,
         neo4j_password=args.neo4j_password,
         cobol_format=args.format,
+        graph_enrich_after_neo4j=args.graph_enrich_after_neo4j,
     )
 
 

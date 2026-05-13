@@ -38,7 +38,7 @@ except Exception:  # pragma: no cover - fallback keeps CLI usable without LangGr
 from sqlite_loader import SQLiteLoader
 from doc_agent_pipeline import _get_llm
 
-console = Console(force_terminal=True, highlight=False)
+console = Console(force_terminal=True, highlight=False, legacy_windows=False)
 
 
 class ArtifactDocState(TypedDict, total=False):

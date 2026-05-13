@@ -1,7 +1,7 @@
 # Module: Pgmiderr
 
 > **Module ID:** `COA`  
-> **Programs:** 0
+> **Programs:** 1
 
 ---
 
@@ -13,10 +13,16 @@ Pgmiderr
 
 | Program | Type | Lines | Business Purpose |
 |---------|------|-------|-----------------|
+| [COADM01C](../programs/COADM01C.md) | ONLINE | 289 |  |
 
 
+## Associated Screens
+
+| Screen | Map | Mapset | Program |
+|--------|-----|--------|---------|
+| [COADM1A](../screens/COADM1A.md) | COADM1A | COADM01 | [COADM01C](../programs/COADM01C.md) |
 
 
 ---
 
-*Generated 2026-05-02 17:07*
+*Generated 2026-05-12 12:31*

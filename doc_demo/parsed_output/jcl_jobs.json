@@ -1,9 +1,1036 @@
 [
   {
+    "job_name": "CNJBATMP",
+    "file_name": "BATCMP.jcl",
+    "file_path": "carddemo\\samples\\jcl\\BATCMP.jcl",
+    "file_hash": "2b7745c5836531f88d59becce63f37cb",
+    "job_description": "Compile Batch COBOL Program",
+    "job_class": "A",
+    "msg_class": "H",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "BATCMP",
+        "program": "",
+        "proc": "BUILDBAT",
+        "step_type": "PROC",
+        "comment_lines": [
+          "********************************************************************",
+          "compile the COBOL code:",
+          "********************************************************************"
+        ],
+        "datasets": [],
+        "sysin_data": [],
+        "cond": "",
+        "line_number": 42
+      }
+    ],
+    "programs_called": [],
+    "input_datasets": [],
+    "output_datasets": []
+  },
+  {
+    "job_name": "CBLDBMS",
+    "file_name": "BMSCMP.jcl",
+    "file_path": "carddemo\\samples\\jcl\\BMSCMP.jcl",
+    "file_hash": "89ab27153e5d1cf37eb07638dbe913d8",
+    "job_description": "Compile BMS Map",
+    "job_class": "A",
+    "msg_class": "H",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "STEP1",
+        "program": "",
+        "proc": "BUILDBMS",
+        "step_type": "PROC",
+        "comment_lines": [],
+        "datasets": [],
+        "sysin_data": [],
+        "cond": "",
+        "line_number": 38
+      },
+      {
+        "step_name": "SDSF1",
+        "program": "SDSF",
+        "proc": "",
+        "step_type": "PGM",
+        "comment_lines": [
+          "********************************************************************",
+          "***  CICS commands in batch to Execute NEWCOPY                ******",
+          "********************************************************************"
+        ],
+        "datasets": [
+          {
+            "dd_name": "ISFOUT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "OUTPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "CMDOUT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "OUTPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "ISFIN",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": true
+          }
+        ],
+        "sysin_data": [
+          " /MODIFY CICSAWSA,'CEMT SET PROG(CICSMAP) NEWCOPY'"
+        ],
+        "cond": "",
+        "line_number": 42
+      }
+    ],
+    "programs_called": [
+      "SDSF"
+    ],
+    "input_datasets": [],
+    "output_datasets": []
+  },
+  {
+    "job_name": "CICCMP",
+    "file_name": "CICCMP.jcl",
+    "file_path": "carddemo\\samples\\jcl\\CICCMP.jcl",
+    "file_hash": "061dae98905236a61e68127f18d63bff",
+    "job_description": "Compile CICS Program",
+    "job_class": "A",
+    "msg_class": "H",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "CICSCMP",
+        "program": "",
+        "proc": "BUILDONL",
+        "step_type": "PROC",
+        "comment_lines": [
+          "********************************************************************",
+          "compile the COBOL code:",
+          "********************************************************************"
+        ],
+        "datasets": [],
+        "sysin_data": [],
+        "cond": "",
+        "line_number": 41
+      },
+      {
+        "step_name": "NEWCOPY",
+        "program": "SDSF",
+        "proc": "",
+        "step_type": "PGM",
+        "comment_lines": [
+          "********************************************************************",
+          "***  CICS commands in batch to perform NEWCOPY                ******",
+          "********************************************************************"
+        ],
+        "datasets": [
+          {
+            "dd_name": "ISFOUT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "OUTPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "CMDOUT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "OUTPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "ISFIN",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": true
+          }
+        ],
+        "sysin_data": [
+          " /MODIFY CICSAWSA,'CEMT SET PROG(CICSPGMN) NEWCOPY'                             "
+        ],
+        "cond": "4,LT",
+        "line_number": 45
+      }
+    ],
+    "programs_called": [
+      "SDSF"
+    ],
+    "input_datasets": [],
+    "output_datasets": []
+  },
+  {
+    "job_name": "CIDBCMP",
+    "file_name": "CICDBCMP.jcl",
+    "file_path": "carddemo\\samples\\jcl\\CICDBCMP.jcl",
+    "file_hash": "c77b2fb22c874caaff48d2322e3abee4",
+    "job_description": "Compile CICS DB2 PGM",
+    "job_class": "A",
+    "msg_class": "H",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "CICSCMP",
+        "program": "",
+        "proc": "BLDCIDB2",
+        "step_type": "PROC",
+        "comment_lines": [
+          "********************************************************************",
+          "compile the COBOL code:",
+          "********************************************************************"
+        ],
+        "datasets": [],
+        "sysin_data": [],
+        "cond": "",
+        "line_number": 54
+      }
+    ],
+    "programs_called": [],
+    "input_datasets": [],
+    "output_datasets": []
+  },
+  {
+    "job_name": "IMSMQCMP",
+    "file_name": "IMSMQCMP.jcl",
+    "file_path": "carddemo\\samples\\jcl\\IMSMQCMP.jcl",
+    "file_hash": "150b9d6db48592c13bf6728105bbfdf1",
+    "job_description": "",
+    "job_class": "A",
+    "msg_class": "",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "TRN",
+        "program": "DFHECP1",
+        "proc": "",
+        "step_type": "PGM",
+        "comment_lines": [],
+        "datasets": [
+          {
+            "dd_name": "STEPLIB",
+            "dsn": "&CICSHLQ..CICS.SDFHLOAD",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSIN",
+            "dsn": "&HLQ..COBOL.SRC(IMSMQPGM)",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSPRINT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSPUNCH",
+            "dsn": "&&SYSCIN",
+            "disp": "",
+            "disposition_normal": "PASS",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "400,(400,100",
+            "is_inline": false
+          }
+        ],
+        "sysin_data": [],
+        "cond": "",
+        "line_number": 28
+      },
+      {
+        "step_name": "COBOL",
+        "program": "IGYCRCTL",
+        "proc": "",
+        "step_type": "PGM",
+        "comment_lines": [],
+        "datasets": [
+          {
+            "dd_name": "STEPLIB",
+            "dsn": "",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSPRINT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSLIN",
+            "dsn": "",
+            "disp": "MOD",
+            "disposition_normal": "PASS",
+            "disposition_abnormal": "",
+            "direction": "OUTPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "VIO",
+            "space": "TRK,(3,3",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT1",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "VIO",
+            "space": "CYL,(1,1",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT2",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "VIO",
+            "space": "CYL,(1,1",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT3",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "VIO",
+            "space": "CYL,(1,1",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT4",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "VIO",
+            "space": "CYL,(1,1",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT5",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "VIO",
+            "space": "CYL,(1,1",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT6",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "VIO",
+            "space": "CYL,(1,1",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT7",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "VIO",
+            "space": "CYL,(1,1",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT8",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "CYL,(1,2",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT9",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "CYL,(1,2",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT10",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "CYL,(1,2",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT11",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "CYL,(1,2",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT12",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "CYL,(1,2",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT13",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "CYL,(1,2",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT14",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "CYL,(1,2",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT15",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "CYL,(1,2",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSMDECK",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "CYL,(1,2",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSLIB",
+            "dsn": "CEE.SCEESAMP",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSIN",
+            "dsn": "&&SYSCIN",
+            "disp": "OLD",
+            "disposition_normal": "DELETE",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          }
+        ],
+        "sysin_data": [],
+        "cond": "4,LT",
+        "line_number": 37
+      },
+      {
+        "step_name": "COPYIMS",
+        "program": "IEBGENER",
+        "proc": "",
+        "step_type": "UTIL",
+        "comment_lines": [
+          "*********************************",
+          "COPY LINK STEP",
+          "*********************************"
+        ],
+        "datasets": [
+          {
+            "dd_name": "SYSPRINT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT1",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": true
+          }
+        ],
+        "sysin_data": [
+          "   ENTRY IMSMQPGM",
+          "   NAME IMSMQPGM(R)",
+          "//SYSUT2   DD DSN=&&COPYIMS,DISP=(NEW,PASS), DCB=(LRECL=80,BLKSIZE=400,RECFM=FB), UNIT=3390,SPACE=(400,(20,20))",
+          "//SYSPRINT DD SYSOUT=*",
+          "//SYSIN    DD DUMMY",
+          "//*",
+          "//COPYLINK EXEC PGM=IEBGENER,COND=(4,LT)",
+          "//SYSUT1   DD *",
+          "  INCLUDE SYSLIB(DFHELII)",
+          "//SYSUT2   DD DSN=&&COPYLINK,DISP=(NEW,PASS), DCB=(LRECL=80,BLKSIZE=400,RECFM=FB), UNIT=3390,SPACE=(400,(20,20))",
+          "//SYSPRINT DD SYSOUT=*",
+          "//SYSIN    DD DUMMY",
+          "//*",
+          "//COPYMQ   EXEC PGM=IEBGENER,COND=(4,LT)",
+          "//SYSUT1   DD *",
+          " INCLUDE CSQSTUB(CSQCSTUB)",
+          "//SYSUT2   DD DSN=&&COPYMQ,DISP=(NEW,PASS), DCB=(LRECL=80,BLKSIZE=400,RECFM=FB), UNIT=3390,SPACE=(400,(20,20))",
+          "//SYSPRINT DD SYSOUT=*",
+          "//SYSIN    DD DUMMY",
+          "//*",
+          "//LKED   EXEC PGM=IEWL,REGION=0M,PARM='LIST,XREF',COND=(4,LT)",
+          "//SYSLIB   DD DSN=&MQHLQ..SCSQLOAD,DISP=SHR DD DSN=SYS1.LINKLIB,DISP=SHR DD DSN=CEE.SCEELKED,DISP=SHR DD DSN=&CICSHLQ..CICS.SDFHLOAD,DISP=SHR DD DSN=&IMSHLQ..SDFSRESL,DISP=SHR",
+          "//CSQSTUB  DD DSN=&MQHLQ..SCSQLOAD,DISP=SHR",
+          "//SYSLIN   DD DSN=&&COPYLINK,DISP=(OLD,DELETE) DD DSN=&&COPYMQ,DISP=(OLD,DELETE) DD DSN=&&LOADSET,DISP=(OLD,DELETE) DD DSN=&&COPYIMS,DISP=(OLD,DELETE)",
+          "//SYSPRINT DD SYSOUT=*",
+          "//SYSLMOD  DD DSNAME=&HLQ..CICSLOAD(IMSMQPGM), DISP=SHR",
+          "//SYSUT1   DD UNIT=VIO,SPACE=(TRK,(10,10))"
+        ],
+        "cond": "4,LT",
+        "line_number": 71
+      }
+    ],
+    "programs_called": [
+      "DFHECP1",
+      "IGYCRCTL",
+      "IEBGENER"
+    ],
+    "input_datasets": [
+      "&HLQ..COBOL.SRC(IMSMQPGM)",
+      "CEE.SCEESAMP",
+      "&&SYSCIN"
+    ],
+    "output_datasets": []
+  },
+  {
+    "job_name": "LISTFILS",
+    "file_name": "LISTCAT.jcl",
+    "file_path": "carddemo\\samples\\jcl\\LISTCAT.jcl",
+    "file_hash": "856c32bae2e25132856a147aae0631a5",
+    "job_description": "CARDDEMO",
+    "job_class": "A",
+    "msg_class": "0",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "STEP01",
+        "program": "IEFBR14",
+        "proc": "",
+        "step_type": "UTIL",
+        "comment_lines": [
+          "*****************************************************************",
+          "Copyright Amazon.com, Inc. or its affiliates.",
+          "All Rights Reserved.",
+          "Licensed under the Apache License, Version 2.0 (the \"License\").",
+          "You may not use this file except in compliance with the License.",
+          "You may obtain a copy of the License at",
+          "http://www.apache.org/licenses/LICENSE-2.0",
+          "Unless required by applicable law or agreed to in writing,",
+          "software distributed under the License is distributed on an",
+          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
+          "either express or implied. See the License for the specific",
+          "language governing permissions and limitations under the License",
+          "*****************************************************************",
+          "******************************************************************",
+          "List catalog for all the files in CARDDEMO application",
+          "******************************************************************"
+        ],
+        "datasets": [
+          {
+            "dd_name": "DD1",
+            "dsn": "AWS.M2.CARDDEMO.LISTCAT",
+            "disp": "MOD",
+            "disposition_normal": "DELETE",
+            "disposition_abnormal": "DELETE",
+            "direction": "OUTPUT",
+            "recfm": "FBA",
+            "lrecl": "133",
+            "unit": "SYSDA",
+            "space": "TRK,(1,1",
+            "is_inline": false
+          }
+        ],
+        "sysin_data": [],
+        "cond": "",
+        "line_number": 21
+      },
+      {
+        "step_name": "STEP05",
+        "program": "IDCAMS",
+        "proc": "",
+        "step_type": "UTIL",
+        "comment_lines": [],
+        "datasets": [
+          {
+            "dd_name": "SYSPRINT",
+            "dsn": "AWS.M2.CARDDEMO.LISTCAT",
+            "disp": "NEW",
+            "disposition_normal": "CATLG",
+            "disposition_abnormal": "DELETE",
+            "direction": "SYSTEM",
+            "recfm": "FBA",
+            "lrecl": "133",
+            "unit": "SYSDA",
+            "space": "TRK,(1,1",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSIN",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": true
+          }
+        ],
+        "sysin_data": [
+          "   LISTCAT LEVEL(AWS.M2.CARDDEMO)  -",
+          "           ALL"
+        ],
+        "cond": "0,NE",
+        "line_number": 27
+      }
+    ],
+    "programs_called": [
+      "IEFBR14",
+      "IDCAMS"
+    ],
+    "input_datasets": [],
+    "output_datasets": [
+      "AWS.M2.CARDDEMO.LISTCAT"
+    ]
+  },
+  {
+    "job_name": "RACFCMDS",
+    "file_name": "RACFCMDS.jcl",
+    "file_path": "carddemo\\samples\\jcl\\RACFCMDS.jcl",
+    "file_hash": "5f37ef9c881f9efc981666a21d91827a",
+    "job_description": "",
+    "job_class": "A",
+    "msg_class": "Y",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "TSOBAT",
+        "program": "IKJEFT01",
+        "proc": "",
+        "step_type": "UTIL",
+        "comment_lines": [
+          "*****************************************************************",
+          "Copyright Amazon.com, Inc. or its affiliates.",
+          "All Rights Reserved.",
+          "Licensed under the Apache License, Version 2.0 (the \"License\").",
+          "You may not use this file except in compliance with the License.",
+          "You may obtain a copy of the License at",
+          "http://www.apache.org/licenses/LICENSE-2.0",
+          "Unless required by applicable law or agreed to in writing,",
+          "software distributed under the License is distributed on an",
+          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
+          "either express or implied. See the License for the specific",
+          "language governing permissions and limitations under the License",
+          "*****************************************************************"
+        ],
+        "datasets": [
+          {
+            "dd_name": "SYSTSPRT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSTSIN",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": true
+          },
+          {
+            "dd_name": "SYSTSIN",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": true
+          }
+        ],
+        "sysin_data": [
+          " RALT GCICSTRN CARD ADDMEM(CT02)                                                ",
+          " CONNECT AWSCODR GROUP(M2APPDEV)                                                "
+        ],
+        "cond": "",
+        "line_number": 19
+      }
+    ],
+    "programs_called": [
+      "IKJEFT01"
+    ],
+    "input_datasets": [],
+    "output_datasets": []
+  },
+  {
+    "job_name": "REPRTEST",
+    "file_name": "REPRTEST.jcl",
+    "file_path": "carddemo\\samples\\jcl\\REPRTEST.jcl",
+    "file_hash": "418eb18afcb8a977613b5df98255f896",
+    "job_description": "REPRO TEST JOB",
+    "job_class": "A",
+    "msg_class": "0",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "STEP05",
+        "program": "",
+        "proc": "REPROC",
+        "step_type": "PROC",
+        "comment_lines": [],
+        "datasets": [
+          {
+            "dd_name": "PRC001.FILEIN",
+            "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "PRC001.FILEOUT",
+            "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP(+1)",
+            "disp": "NEW",
+            "disposition_normal": "CATLG",
+            "disposition_abnormal": "DELETE",
+            "direction": "OUTPUT",
+            "recfm": "FB",
+            "lrecl": "350",
+            "unit": "SYSDA",
+            "space": "CYL,(1,1",
+            "is_inline": false
+          }
+        ],
+        "sysin_data": [],
+        "cond": "",
+        "line_number": 23
+      }
+    ],
+    "programs_called": [],
+    "input_datasets": [
+      "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
+    ],
+    "output_datasets": [
+      "AWS.M2.CARDDEMO.TRANSACT.BKUP(+1)"
+    ]
+  },
+  {
+    "job_name": "SORTTEST",
+    "file_name": "SORTTEST.jcl",
+    "file_path": "carddemo\\samples\\jcl\\SORTTEST.jcl",
+    "file_hash": "2a5b57e8f2da49b1a96e05a8d22cf3e9",
+    "job_description": "SORT STEP TESTING",
+    "job_class": "A",
+    "msg_class": "0",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "STEP05R",
+        "program": "SORT",
+        "proc": "",
+        "step_type": "UTIL",
+        "comment_lines": [
+          "*****************************************************************",
+          "Copyright Amazon.com, Inc. or its affiliates.",
+          "All Rights Reserved.",
+          "Licensed under the Apache License, Version 2.0 (the \"License\").",
+          "You may not use this file except in compliance with the License.",
+          "You may obtain a copy of the License at",
+          "http://www.apache.org/licenses/LICENSE-2.0",
+          "Unless required by applicable law or agreed to in writing,",
+          "software distributed under the License is distributed on an",
+          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
+          "either express or implied. See the License for the specific",
+          "language governing permissions and limitations under the License",
+          "*****************************************************************"
+        ],
+        "datasets": [
+          {
+            "dd_name": "SORTIN",
+            "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP(0)",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYMNAMES",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": true
+          },
+          {
+            "dd_name": "SYSOUT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SORTOUT",
+            "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY(+1)",
+            "disp": "NEW",
+            "disposition_normal": "CATLG",
+            "disposition_abnormal": "DELETE",
+            "direction": "OUTPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "CYL,(1,1",
+            "is_inline": false
+          }
+        ],
+        "sysin_data": [
+          "TRAN-CARD-NUM,263,16,ZD",
+          "TRAN-PROC-DT,305,10,CH               ",
+          "PARM-DATE,C'2022-06-02'                              ",
+          "//SYSIN    DD *                                                         ",
+          " SORT FIELDS=(TRAN-CARD-NUM,A) ",
+          " INCLUDE COND=(TRAN-PROC-DT,EQ,PARM-DATE)                                       "
+        ],
+        "cond": "",
+        "line_number": 19
+      }
+    ],
+    "programs_called": [
+      "SORT"
+    ],
+    "input_datasets": [
+      "AWS.M2.CARDDEMO.TRANSACT.BKUP(0)"
+    ],
+    "output_datasets": [
+      "AWS.M2.CARDDEMO.TRANSACT.DALY(+1)"
+    ]
+  },
+  {
     "job_name": "ACCTFILE",
     "file_name": "ACCTFILE.jcl",
     "file_path": "carddemo\\app\\jcl\\ACCTFILE.jcl",
-    "file_hash": "346494d44300899ea77af2d08137fc55",
+    "file_hash": "b15a9b77b5dcc015756f0ebc291d6376",
     "job_description": "Delete define Account Data",
     "job_class": "A",
     "msg_class": "0",
@@ -209,7 +1236,7 @@
     "job_name": "CARDFILE",
     "file_name": "CARDFILE.jcl",
     "file_path": "carddemo\\app\\jcl\\CARDFILE.jcl",
-    "file_hash": "ad9328190441ab89745055286dfd8cbc",
+    "file_hash": "e7019859732b17f102f148bc7280b03d",
     "job_description": "Delete define card data",
     "job_class": "A",
     "msg_class": "0",
@@ -680,7 +1707,7 @@
     "job_name": "CBADMCDJ",
     "file_name": "CBADMCDJ.jcl",
     "file_path": "carddemo\\app\\jcl\\CBADMCDJ.jcl",
-    "file_hash": "9e40b59078d81dbcfbc3669bcf875d58",
+    "file_hash": "a4ad2337e92b861b53740e7362d4dfae",
     "job_description": "",
     "job_class": "A",
     "msg_class": "H",
@@ -883,7 +1910,7 @@
     "job_name": "CBEXPORT",
     "file_name": "CBEXPORT.jcl",
     "file_path": "carddemo\\app\\jcl\\CBEXPORT.jcl",
-    "file_hash": "ea337ab7f6e827348bd7f118c6d73e18",
+    "file_hash": "8f5ba0f309ff371f33ff8673396df49c",
     "job_description": "Export Customer Data for Migration",
     "job_class": "A",
     "msg_class": "0",
@@ -1111,7 +2138,7 @@
     "job_name": "CBIMPORT",
     "file_name": "CBIMPORT.jcl",
     "file_path": "carddemo\\app\\jcl\\CBIMPORT.jcl",
-    "file_hash": "d6e771928122cef9e87137be57b85f2a",
+    "file_hash": "a63406a3d90bb4d6ca1aaf669a8ab3c9",
     "job_description": "Import CARDDEMO Data",
     "job_class": "A",
     "msg_class": "0",
@@ -1282,7 +2309,7 @@
     "job_name": "CLOSEFIL",
     "file_name": "CLOSEFIL.jcl",
     "file_path": "carddemo\\app\\jcl\\CLOSEFIL.jcl",
-    "file_hash": "fe79537fd957d1f7dadb4cfb3aa4432f",
+    "file_hash": "60febaf7e2bf9bfab9ffebfa40b73aae",
     "job_description": "Close files in CICS",
     "job_class": "A",
     "msg_class": "0",
@@ -1373,7 +2400,7 @@
     "job_name": "COMBTRAN",
     "file_name": "COMBTRAN.jcl",
     "file_path": "carddemo\\app\\jcl\\COMBTRAN.jcl",
-    "file_hash": "8586b2258e31317fb06a4ccb9cd46fdf",
+    "file_hash": "4f35d8f05c4ffe6e86b9f0c1504270ac",
     "job_description": "COMBINE TRANSACTIONS",
     "job_class": "A",
     "msg_class": "0",
@@ -1552,7 +2579,7 @@
     "job_name": "CREASTMT",
     "file_name": "CREASTMT.JCL",
     "file_path": "carddemo\\app\\jcl\\CREASTMT.JCL",
-    "file_hash": "8aa0da3d2c90cb897d2fbd1f401ce5a3",
+    "file_hash": "54ee7c507db66779798b07eb8de20cd3",
     "job_description": "Create Statement",
     "job_class": "A",
     "msg_class": "H",
@@ -1979,7 +3006,7 @@
     "job_name": "CUSTFILE",
     "file_name": "CUSTFILE.jcl",
     "file_path": "carddemo\\app\\jcl\\CUSTFILE.jcl",
-    "file_hash": "e5d3cd013b9a3173357810c46a7f856d",
+    "file_hash": "0045001cc78a4a1704e33656fc6e37d5",
     "job_description": "DEFINE CUSTOMER FILE",
     "job_class": "A",
     "msg_class": "0",
@@ -2300,7 +3327,7 @@
     "job_name": "DALYREJS",
     "file_name": "DALYREJS.jcl",
     "file_path": "carddemo\\app\\jcl\\DALYREJS.jcl",
-    "file_hash": "60d9b9a3f4847880a89abcde6bee67ef",
+    "file_hash": "2c870141adff0f212c2bbded1a21e660",
     "job_description": "DEF GDG FOR REJS",
     "job_class": "A",
     "msg_class": "0",
@@ -2378,7 +3405,7 @@
     "job_name": "DEFCUST",
     "file_name": "DEFCUST.jcl",
     "file_path": "carddemo\\app\\jcl\\DEFCUST.jcl",
-    "file_hash": "2180a0c5e63a85e8e405363a85be8e58",
+    "file_hash": "2a396a7c13f2416c5ae2cd155ff296c8",
     "job_description": "Define Customer Data File",
     "job_class": "A",
     "msg_class": "0",
@@ -2508,7 +3535,7 @@
     "job_name": "DEFGDGB",
     "file_name": "DEFGDGB.jcl",
     "file_path": "carddemo\\app\\jcl\\DEFGDGB.jcl",
-    "file_hash": "4af08be25d917ef027369a12b6aa9c64",
+    "file_hash": "36427160766cbc0c62b979643344a594",
     "job_description": "DEF GDG BASES",
     "job_class": "A",
     "msg_class": "0",
@@ -2617,7 +3644,7 @@
     "job_name": "DEFGDGD",
     "file_name": "DEFGDGD.jcl",
     "file_path": "carddemo\\app\\jcl\\DEFGDGD.jcl",
-    "file_hash": "dbbc1da6864cff4015d8ce1d919aaf70",
+    "file_hash": "39d6e40bd9b13559e7e5494224221ba8",
     "job_description": "DEF DB2 GDG",
     "job_class": "A",
     "msg_class": "0",
@@ -3007,7 +4034,7 @@
     "job_name": "DISCGRP",
     "file_name": "DISCGRP.jcl",
     "file_path": "carddemo\\app\\jcl\\DISCGRP.jcl",
-    "file_hash": "00cf41fb5ba853b614a4391cda19e2eb",
+    "file_hash": "7915ffbf057d887191b06cff5917a6ae",
     "job_description": "DEFINE DISCLOSURE GROUP FILE",
     "job_class": "A",
     "msg_class": "0",
@@ -3213,7 +4240,7 @@
     "job_name": "DUSRSECJ",
     "file_name": "DUSRSECJ.jcl",
     "file_path": "carddemo\\app\\jcl\\DUSRSECJ.jcl",
-    "file_hash": "0adb1304bdee5142c2a17b946f40973b",
+    "file_hash": "55f2e9c54a728ebc51f868c8e371dc6e",
     "job_description": "DEF USRSEC FILE",
     "job_class": "A",
     "msg_class": "H",
@@ -3496,7 +4523,7 @@
     "job_name": "ESDSRRDS",
     "file_name": "ESDSRRDS.jcl",
     "file_path": "carddemo\\app\\jcl\\ESDSRRDS.jcl",
-    "file_hash": "fea132b9dadb5a47beb2dc331c7b9b3e",
+    "file_hash": "9f69f9d7c1c5040992fa11e555c24865",
     "job_description": "DEF ESDS RRDS  ",
     "job_class": "A",
     "msg_class": "H",
@@ -3914,7 +4941,7 @@
     "job_name": "FTPJCLS",
     "file_name": "FTPJCL.JCL",
     "file_path": "carddemo\\app\\jcl\\FTPJCL.JCL",
-    "file_hash": "d0413a5a44bd19420f31471968e9871d",
+    "file_hash": "434e9ccd5d1904840bca8b05aa3977c5",
     "job_description": "FTP JCL",
     "job_class": "A",
     "msg_class": "H",
@@ -3990,7 +5017,7 @@
     "job_name": "INTCALC",
     "file_name": "INTCALC.jcl",
     "file_path": "carddemo\\app\\jcl\\INTCALC.jcl",
-    "file_hash": "e01c9e26a917c432a7f355e7584d1ad9",
+    "file_hash": "b412ac8e8bd5a7c119fe0eb1da263449",
     "job_description": "INTEREST CALCULATOR",
     "job_class": "A",
     "msg_class": "0",
@@ -4161,7 +5188,7 @@
     "job_name": "INTRDRJ1",
     "file_name": "INTRDRJ1.JCL",
     "file_path": "carddemo\\app\\jcl\\INTRDRJ1.JCL",
-    "file_hash": "1f5c7deed815c0e2ca9a5f3373cf7f4d",
+    "file_hash": "64951bbcf0a38e9754c1f6b0328b6110",
     "job_description": "",
     "job_class": "A",
     "msg_class": "H",
@@ -4319,7 +5346,7 @@
     "job_name": "INTRDRJ2",
     "file_name": "INTRDRJ2.JCL",
     "file_path": "carddemo\\app\\jcl\\INTRDRJ2.JCL",
-    "file_hash": "acf78aea8ea5c86a50afd6a4495be8bf",
+    "file_hash": "1ced838bf29829cf3ca6a27bd03bf206",
     "job_description": "",
     "job_class": "A",
     "msg_class": "H",
@@ -4410,7 +5437,7 @@
     "job_name": "OPENFIL",
     "file_name": "OPENFIL.jcl",
     "file_path": "carddemo\\app\\jcl\\OPENFIL.jcl",
-    "file_hash": "eecd79d06ac7280ee296bd17379d1c96",
+    "file_hash": "f6406bf8ddedfac5e1ecfd387932b775",
     "job_description": "Open files in CICS",
     "job_class": "A",
     "msg_class": "0",
@@ -4501,7 +5528,7 @@
     "job_name": "POSTTRAN",
     "file_name": "POSTTRAN.jcl",
     "file_path": "carddemo\\app\\jcl\\POSTTRAN.jcl",
-    "file_hash": "55a2936d5f0c2757ec3ffb40ec515293",
+    "file_hash": "41e59b0e64d5a1747f164141a9240dd3",
     "job_description": "POSTTRAN",
     "job_class": "A",
     "msg_class": "0",
@@ -4673,7 +5700,7 @@
     "job_name": "PRTCATBL",
     "file_name": "PRTCATBL.jcl",
     "file_path": "carddemo\\app\\jcl\\PRTCATBL.jcl",
-    "file_hash": "db3b802cc16776bbc5a162175555857c",
+    "file_hash": "a8b08987e7cb7bb6124b2a8aa53b9812",
     "job_description": "Print Trasaction Category Balance File",
     "job_class": "A",
     "msg_class": "0",
@@ -4843,7 +5870,7 @@
     "job_name": "READACCT",
     "file_name": "READACCT.jcl",
     "file_path": "carddemo\\app\\jcl\\READACCT.jcl",
-    "file_hash": "24d9e4a5b7e6686cdb95fcb1a979496c",
+    "file_hash": "cac3db84d9954cde0b58d02622186aac",
     "job_description": "READACCT",
     "job_class": "A",
     "msg_class": "H",
@@ -5042,7 +6069,7 @@
     "job_name": "READCARD",
     "file_name": "READCARD.jcl",
     "file_path": "carddemo\\app\\jcl\\READCARD.jcl",
-    "file_hash": "0b107708d97532f0d1b88c9ef32a486a",
+    "file_hash": "9fc88ef6a5a765d1594f38c6f3fc4c8c",
     "job_description": "READCARD",
     "job_class": "A",
     "msg_class": "0",
@@ -5142,7 +6169,7 @@
     "job_name": "READCUST",
     "file_name": "READCUST.jcl",
     "file_path": "carddemo\\app\\jcl\\READCUST.jcl",
-    "file_hash": "c21877cf04c178ba255805c0f8613c06",
+    "file_hash": "34e474b6c1f39b087c46d4ba2e49ae5f",
     "job_description": "Read Customer Data file",
     "job_class": "A",
     "msg_class": "0",
@@ -5241,7 +6268,7 @@
     "job_name": "READXREF",
     "file_name": "READXREF.jcl",
     "file_path": "carddemo\\app\\jcl\\READXREF.jcl",
-    "file_hash": "f7e739782a4821ebdddba4504e5c9e3e",
+    "file_hash": "4047ae2e42e68281a20cf58f117448ce",
     "job_description": "Read Cross Ref file",
     "job_class": "A",
     "msg_class": "0",
@@ -5341,7 +6368,7 @@
     "job_name": "REPTFILE",
     "file_name": "REPTFILE.jcl",
     "file_path": "carddemo\\app\\jcl\\REPTFILE.jcl",
-    "file_hash": "aae2eb425fb16365eb46422caa515f63",
+    "file_hash": "1f4ee72e37f2899248ce889fdb6cb9e7",
     "job_description": "DEF GDG FOR REPORT FILE",
     "job_class": "A",
     "msg_class": "0",
@@ -5418,7 +6445,7 @@
     "job_name": "TCATBALF",
     "file_name": "TCATBALF.jcl",
     "file_path": "carddemo\\app\\jcl\\TCATBALF.jcl",
-    "file_hash": "981cf888b3fc0669970ef8296655d8d0",
+    "file_hash": "e9e51aa898cd657fc0a292713621cfd4",
     "job_description": "DEFINE TRANCAT BAL",
     "job_class": "A",
     "msg_class": "0",
@@ -5624,7 +6651,7 @@
     "job_name": "TRANBKP",
     "file_name": "TRANBKP.jcl",
     "file_path": "carddemo\\app\\jcl\\TRANBKP.jcl",
-    "file_hash": "9b92f4fd67a58bd090f32e29067af00c",
+    "file_hash": "65e8115bd9d39373fe200e114009f743",
     "job_description": "REPRO and Delete Transaction Master",
     "job_class": "A",
     "msg_class": "0",
@@ -5793,7 +6820,7 @@
     "job_name": "TRANCATG",
     "file_name": "TRANCATG.jcl",
     "file_path": "carddemo\\app\\jcl\\TRANCATG.jcl",
-    "file_hash": "def87d0cf35450605dd79ff31e9455a3",
+    "file_hash": "cb0f2ee38b378bec39678a862a6fa708",
     "job_description": "DEFINE TRAN CATEGORY",
     "job_class": "A",
     "msg_class": "0",
@@ -5999,7 +7026,7 @@
     "job_name": "TRANFILE",
     "file_name": "TRANFILE.jcl",
     "file_path": "carddemo\\app\\jcl\\TRANFILE.jcl",
-    "file_hash": "cb4cbdd24de2fc4b7d6cfd6ef94fcb01",
+    "file_hash": "c7fcf87bae7f48f3276c8d24c6d804a7",
     "job_description": "DEFINE TRANSACTION MASTER",
     "job_class": "A",
     "msg_class": "0",
@@ -6470,7 +7497,7 @@
     "job_name": "TRANIDX",
     "file_name": "TRANIDX.jcl",
     "file_path": "carddemo\\app\\jcl\\TRANIDX.jcl",
-    "file_hash": "52a3fd7c96c16964f676bf876a15a13c",
+    "file_hash": "5fb9147dd671c9f556dee7513ddb2923",
     "job_description": "Define AIX on Transaction Master",
     "job_class": "A",
     "msg_class": "0",
@@ -6645,7 +7672,7 @@
     "job_name": "TRANREPT",
     "file_name": "TRANREPT.jcl",
     "file_path": "carddemo\\app\\jcl\\TRANREPT.jcl",
-    "file_hash": "b9f23424c843cc750c01416fa6678fb6",
+    "file_hash": "59a5249b7c032351f2fff2e1dab6a988",
     "job_description": "TRANSACTION REPORT",
     "job_class": "A",
     "msg_class": "0",
@@ -6927,7 +7954,7 @@
     "job_name": "TRANTYPE",
     "file_name": "TRANTYPE.jcl",
     "file_path": "carddemo\\app\\jcl\\TRANTYPE.jcl",
-    "file_hash": "d6164c2cfcade2d1b2599ff41ff71844",
+    "file_hash": "90d249db963062cbb089f52a2a67d3fe",
     "job_description": "DEFINE TRAN TYPE",
     "job_class": "A",
     "msg_class": "0",
@@ -7133,7 +8160,7 @@
     "job_name": "TXT2PDF1",
     "file_name": "TXT2PDF1.JCL",
     "file_path": "carddemo\\app\\jcl\\TXT2PDF1.JCL",
-    "file_hash": "d1ea88f6c18c726cebb2f4488be84122",
+    "file_hash": "c8ec34a9a37a710bd692b63d00c1ec2a",
     "job_description": "",
     "job_class": "X",
     "msg_class": "X",
@@ -7263,7 +8290,7 @@
     "job_name": "WAITSTEP",
     "file_name": "WAITSTEP.jcl",
     "file_path": "carddemo\\app\\jcl\\WAITSTEP.jcl",
-    "file_hash": "5e6b350d43073008023b32f963a608c2",
+    "file_hash": "dc0b03265cdd4163318ed82f10fa9bc4",
     "job_description": "WAIT STEP",
     "job_class": "A",
     "msg_class": "0",
@@ -7351,7 +8378,7 @@
     "job_name": "XREFFILE",
     "file_name": "XREFFILE.jcl",
     "file_path": "carddemo\\app\\jcl\\XREFFILE.jcl",
-    "file_hash": "003aac91b188d83c867d878ff895dda8",
+    "file_hash": "36609d96f9d41feae9427aec7e9236a7",
     "job_description": "Delete define cross ref file",
     "job_class": "A",
     "msg_class": "0",
@@ -7703,1086 +8730,10 @@
     "output_datasets": []
   },
   {
-    "job_name": "CBPAUP0J",
-    "file_name": "CBPAUP0J.jcl",
-    "file_path": "carddemo\\app\\app-authorization-ims-db2-mq\\jcl\\CBPAUP0J.jcl",
-    "file_hash": "8940c2065d4250f825f1bc119cfcb2f9",
-    "job_description": "CARDDEMO",
-    "job_class": "A",
-    "msg_class": "H",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "STEP01",
-        "program": "DFSRRC00",
-        "proc": "",
-        "step_type": "PGM",
-        "comment_lines": [
-          "*****************************************************************",
-          "Copyright Amazon.com, Inc. or its affiliates.",
-          "All Rights Reserved.",
-          "Licensed under the Apache License, Version 2.0 (the \"License\").",
-          "You may not use this file except in compliance with the License.",
-          "You may obtain a copy of the License at",
-          "http://www.apache.org/licenses/LICENSE-2.0",
-          "Unless required by applicable law or agreed to in writing,",
-          "software distributed under the License is distributed on an",
-          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
-          "either express or implied. See the License for the specific",
-          "language governing permissions and limitations under the License",
-          "*****************************************************************",
-          "*********************************************************************",
-          "EXECUTE IMS PROGRAM TO DELETE EXPIRED AUTHORIZATIONS",
-          "*********************************************************************"
-        ],
-        "datasets": [
-          {
-            "dd_name": "STEPLIB",
-            "dsn": "IMS.SDFSRESL",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSRESLB",
-            "dsn": "IMS.SDFSRESL",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "PROCLIB",
-            "dsn": "IMS.PROCLIB",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSSEL",
-            "dsn": "IMS.SDFSRESL",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IMS",
-            "dsn": "IMS.PSBLIB",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSIN",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": true
-          }
-        ],
-        "sysin_data": [
-          "00,00001,00001,Y",
-          "//*",
-          "//SYSOUX     DD SYSOUT=*",
-          "//SYSOUT     DD SYSOUT=*",
-          "//SYSABOUT   DD SYSOUT=*",
-          "//ABENDAID   DD SYSOUT=*",
-          "//IEFRDER    DD DUMMY",
-          "//IMSLOGR    DD DUMMY",
-          "//SYSPRINT   DD SYSOUT=*",
-          "//SYSUDUMP   DD SYSOUT=*",
-          "//IMSERR     DD SYSOUT=*"
-        ],
-        "cond": "",
-        "line_number": 24
-      }
-    ],
-    "programs_called": [
-      "DFSRRC00"
-    ],
-    "input_datasets": [
-      "IMS.SDFSRESL",
-      "IMS.PROCLIB",
-      "IMS.PSBLIB"
-    ],
-    "output_datasets": []
-  },
-  {
-    "job_name": "DBPAUTP0",
-    "file_name": "DBPAUTP0.jcl",
-    "file_path": "carddemo\\app\\app-authorization-ims-db2-mq\\jcl\\DBPAUTP0.jcl",
-    "file_hash": "a42b01819866b7b7cddba3f186573484",
-    "job_description": "DBPAUTP0 DB UNLOAD",
-    "job_class": "A",
-    "msg_class": "X",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "STEPDEL",
-        "program": "IEFBR14",
-        "proc": "",
-        "step_type": "UTIL",
-        "comment_lines": [
-          "*********************************************************************",
-          "DELETE OUTPUT DATASET",
-          "*********************************************************************"
-        ],
-        "datasets": [
-          {
-            "dd_name": "SYSPRINT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT1",
-            "dsn": "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0",
-            "disp": "MOD",
-            "disposition_normal": "DELETE",
-            "disposition_abnormal": "",
-            "direction": "OUTPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "SYSDA",
-            "space": "TRK,0",
-            "is_inline": false
-          }
-        ],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 7
-      },
-      {
-        "step_name": "UNLOAD",
-        "program": "DFSRRC00",
-        "proc": "",
-        "step_type": "PGM",
-        "comment_lines": [
-          "*********************************************************************",
-          "DOWNLOAD DBD DBPAUTP0",
-          "*********************************************************************"
-        ],
-        "datasets": [
-          {
-            "dd_name": "STEPLIB",
-            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSRESLB",
-            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IMS",
-            "dsn": "OEM.IMS.IMSP.PSBLIB",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSPRINT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSURGU1",
-            "dsn": "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0",
-            "disp": "",
-            "disposition_normal": "CATLG",
-            "disposition_abnormal": "DELETE",
-            "direction": "UNKNOWN",
-            "recfm": "VB",
-            "lrecl": "27990",
-            "unit": "SYSDA",
-            "space": "32274,(600,100",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DDPAUTP0",
-            "dsn": "OEM.IMS.IMSP.PAUTHDB",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DDPAUTX0",
-            "dsn": "OEM.IMS.IMSP.PAUTHDBX",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSVSAMP",
-            "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSCTL",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": true
-          }
-        ],
-        "sysin_data": [
-          "SBPARM ACTIV=COND                                                               ",
-          "//SYSUDUMP DD SYSOUT=*, DCB=(RECFM=FBA,LRECL=133), SPACE=(605,(500,500),RLSE,,ROUND)",
-          "//*",
-          "//RECON1 DD DSN=OEM.IMS.IMSP.RECON1,DISP=SHR                                    ",
-          "//RECON2 DD DSN=OEM.IMS.IMSP.RECON2,DISP=SHR                                    ",
-          "//RECON3 DD DSN=OEM.IMS.IMSP.RECON3,DISP=SHR                ",
-          "//*",
-          "//DFSWRK01  DD DUMMY                                                            ",
-          "//DFSSRT01  DD DUMMY                                                       //*",
-          "//*Ver: CardDemo_v2.0-35-gcfa73b2-245 Date: 2025-04-29 17:01:37 CDT",
-          "//*"
-        ],
-        "cond": "",
-        "line_number": 15
-      }
-    ],
-    "programs_called": [
-      "IEFBR14",
-      "DFSRRC00"
-    ],
-    "input_datasets": [
-      "OEMA.IMS.IMSP.SDFSRESL",
-      "OEM.IMS.IMSP.PSBLIB",
-      "OEM.IMS.IMSP.PAUTHDB",
-      "OEM.IMS.IMSP.PAUTHDBX",
-      "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)"
-    ],
-    "output_datasets": [
-      "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0"
-    ]
-  },
-  {
-    "job_name": "LOADPADB",
-    "file_name": "LOADPADB.JCL",
-    "file_path": "carddemo\\app\\app-authorization-ims-db2-mq\\jcl\\LOADPADB.JCL",
-    "file_hash": "d834d3bfca3eb2fd8f9548fc914d017e",
-    "job_description": "M2APP",
-    "job_class": "A",
-    "msg_class": "H",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "STEP01",
-        "program": "DFSRRC00",
-        "proc": "",
-        "step_type": "PGM",
-        "comment_lines": [
-          "*****************************************************************",
-          "Copyright Amazon.com, Inc. or its affiliates.",
-          "All Rights Reserved.",
-          "Licensed under the Apache License, Version 2.0 (the \"License\").",
-          "You may not use this file except in compliance with the License.",
-          "You may obtain a copy of the License at",
-          "http://www.apache.org/licenses/LICENSE-2.0",
-          "Unless required by applicable law or agreed to in writing,",
-          "software distributed under the License is distributed on an",
-          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
-          "either express or implied. See the License for the specific",
-          "language governing permissions and limitations under the License",
-          "*****************************************************************",
-          "YLIBS JCLLIB ORDER=VIPINGP.CNTL.PROCLIB",
-          "*********************************************************************",
-          "EXECUTE IMS PROGRAM",
-          "*********************************************************************"
-        ],
-        "datasets": [
-          {
-            "dd_name": "STEPLIB",
-            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSRESLB",
-            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IMS",
-            "dsn": "OEM.IMS.IMSP.PSBLIB",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "INFILE1",
-            "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "INFILE2",
-            "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSVSAMP",
-            "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IMSLOGR",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IEFRDER",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSPRINT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUDUMP",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IMSERR",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          }
-        ],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 26
-      }
-    ],
-    "programs_called": [
-      "DFSRRC00"
-    ],
-    "input_datasets": [
-      "OEMA.IMS.IMSP.SDFSRESL",
-      "OEM.IMS.IMSP.PSBLIB",
-      "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
-      "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
-      "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)"
-    ],
-    "output_datasets": []
-  },
-  {
-    "job_name": "UNLDGSAM",
-    "file_name": "UNLDGSAM.JCL",
-    "file_path": "carddemo\\app\\app-authorization-ims-db2-mq\\jcl\\UNLDGSAM.JCL",
-    "file_hash": "825bc218a03c2fe84e72c08dbeab3a56",
-    "job_description": "M2APP",
-    "job_class": "A",
-    "msg_class": "H",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "STEP01",
-        "program": "DFSRRC00",
-        "proc": "",
-        "step_type": "PGM",
-        "comment_lines": [
-          "*****************************************************************",
-          "Copyright Amazon.com, Inc. or its affiliates.",
-          "All Rights Reserved.",
-          "Licensed under the Apache License, Version 2.0 (the \"License\").",
-          "You may not use this file except in compliance with the License.",
-          "You may obtain a copy of the License at",
-          "http://www.apache.org/licenses/LICENSE-2.0",
-          "Unless required by applicable law or agreed to in writing,",
-          "software distributed under the License is distributed on an",
-          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
-          "either express or implied. See the License for the specific",
-          "language governing permissions and limitations under the License",
-          "*****************************************************************",
-          "*********************************************************************",
-          "EXECUTE IMS PROGRAM",
-          "*********************************************************************"
-        ],
-        "datasets": [
-          {
-            "dd_name": "STEPLIB",
-            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSRESLB",
-            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IMS",
-            "dsn": "OEM.IMS.IMSP.PSBLIB",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "PASFILOP",
-            "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.GSAM",
-            "disp": "OLD",
-            "disposition_normal": "KEEP",
-            "disposition_abnormal": "KEEP",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "PADFILOP",
-            "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.GSAM",
-            "disp": "OLD",
-            "disposition_normal": "KEEP",
-            "disposition_abnormal": "KEEP",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DDPAUTP0",
-            "dsn": "OEM.IMS.IMSP.PAUTHDB",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DDPAUTX0",
-            "dsn": "OEM.IMS.IMSP.PAUTHDBX",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSVSAMP",
-            "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IMSLOGR",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IEFRDER",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSPRINT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUDUMP",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IMSERR",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          }
-        ],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 26
-      }
-    ],
-    "programs_called": [
-      "DFSRRC00"
-    ],
-    "input_datasets": [
-      "OEMA.IMS.IMSP.SDFSRESL",
-      "OEM.IMS.IMSP.PSBLIB",
-      "AWS.M2.CARDDEMO.PAUTDB.ROOT.GSAM",
-      "AWS.M2.CARDDEMO.PAUTDB.CHILD.GSAM",
-      "OEM.IMS.IMSP.PAUTHDB",
-      "OEM.IMS.IMSP.PAUTHDBX",
-      "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)"
-    ],
-    "output_datasets": []
-  },
-  {
-    "job_name": "UNLDPADB",
-    "file_name": "UNLDPADB.JCL",
-    "file_path": "carddemo\\app\\app-authorization-ims-db2-mq\\jcl\\UNLDPADB.JCL",
-    "file_hash": "0422a90650d6bceaa294e20ef17a0a0a",
-    "job_description": "M2APP",
-    "job_class": "A",
-    "msg_class": "H",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "STEP0",
-        "program": "IEFBR14",
-        "proc": "",
-        "step_type": "UTIL",
-        "comment_lines": [
-          "*****************************************************************",
-          "Copyright Amazon.com, Inc. or its affiliates.",
-          "All Rights Reserved.",
-          "Licensed under the Apache License, Version 2.0 (the \"License\").",
-          "You may not use this file except in compliance with the License.",
-          "You may obtain a copy of the License at",
-          "http://www.apache.org/licenses/LICENSE-2.0",
-          "Unless required by applicable law or agreed to in writing,",
-          "software distributed under the License is distributed on an",
-          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
-          "either express or implied. See the License for the specific",
-          "language governing permissions and limitations under the License",
-          "*****************************************************************",
-          "*********************************************************************",
-          "EXECUTE IMS PROGRAM",
-          "*********************************************************************"
-        ],
-        "datasets": [
-          {
-            "dd_name": "SYSPRINT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSOUT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSDUMP",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DD1",
-            "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
-            "disp": "OLD",
-            "disposition_normal": "DELETE",
-            "disposition_abnormal": "DELETE",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DD2",
-            "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
-            "disp": "OLD",
-            "disposition_normal": "DELETE",
-            "disposition_abnormal": "DELETE",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          }
-        ],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 25
-      },
-      {
-        "step_name": "STEP01",
-        "program": "DFSRRC00",
-        "proc": "",
-        "step_type": "PGM",
-        "comment_lines": [],
-        "datasets": [
-          {
-            "dd_name": "STEPLIB",
-            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSRESLB",
-            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IMS",
-            "dsn": "OEM.IMS.IMSP.PSBLIB",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "OUTFIL1",
-            "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
-            "disp": "NEW",
-            "disposition_normal": "CATLG",
-            "disposition_abnormal": "DELETE",
-            "direction": "OUTPUT",
-            "recfm": "FB",
-            "lrecl": "100",
-            "unit": "3390",
-            "space": "400,(20,20",
-            "is_inline": false
-          },
-          {
-            "dd_name": "OUTFIL2",
-            "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
-            "disp": "NEW",
-            "disposition_normal": "CATLG",
-            "disposition_abnormal": "DELETE",
-            "direction": "OUTPUT",
-            "recfm": "FB",
-            "lrecl": "206",
-            "unit": "3390",
-            "space": "400,(20,20",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DDPAUTP0",
-            "dsn": "OEM.IMS.IMSP.PAUTHDB",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DDPAUTX0",
-            "dsn": "OEM.IMS.IMSP.PAUTHDBX",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "DFSVSAMP",
-            "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IMSLOGR",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IEFRDER",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSPRINT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUDUMP",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "IMSERR",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          }
-        ],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 38
-      }
-    ],
-    "programs_called": [
-      "IEFBR14",
-      "DFSRRC00"
-    ],
-    "input_datasets": [
-      "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
-      "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
-      "OEMA.IMS.IMSP.SDFSRESL",
-      "OEM.IMS.IMSP.PSBLIB",
-      "OEM.IMS.IMSP.PAUTHDB",
-      "OEM.IMS.IMSP.PAUTHDBX",
-      "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)"
-    ],
-    "output_datasets": [
-      "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
-      "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO"
-    ]
-  },
-  {
     "job_name": "CREADB2",
     "file_name": "CREADB21.jcl",
     "file_path": "carddemo\\app\\app-transaction-type-db2\\jcl\\CREADB21.jcl",
-    "file_hash": "1232a69b84db006f3b57801bc324c3b7",
+    "file_hash": "3877825da694e148b0eeeb53455405cd",
     "job_description": "",
     "job_class": "A",
     "msg_class": "A",
@@ -9187,7 +9138,7 @@
     "job_name": "MNTTRDB2",
     "file_name": "MNTTRDB2.jcl",
     "file_path": "carddemo\\app\\app-transaction-type-db2\\jcl\\MNTTRDB2.jcl",
-    "file_hash": "308395d8a89aa8700ca1f6d2ab0fe6c8",
+    "file_hash": "193d8cb6603c121bac4d0903beb442b7",
     "job_description": "",
     "job_class": "A",
     "msg_class": "H",
@@ -9306,7 +9257,7 @@
     "job_name": "TRANEXTR",
     "file_name": "TRANEXTR.jcl",
     "file_path": "carddemo\\app\\app-transaction-type-db2\\jcl\\TRANEXTR.jcl",
-    "file_hash": "efc49262c120c0f384017bd33facd0dc",
+    "file_hash": "97d61952e532539c7b506ca43f3874d8",
     "job_description": "EXTRACT TRAN TYPE",
     "job_class": "A",
     "msg_class": "0",
@@ -9779,693 +9730,789 @@
     ]
   },
   {
-    "job_name": "CNJBATMP",
-    "file_name": "BATCMP.jcl",
-    "file_path": "carddemo\\samples\\jcl\\BATCMP.jcl",
-    "file_hash": "b35db799af1a81d60c605453dc75db7f",
-    "job_description": "Compile Batch COBOL Program",
-    "job_class": "A",
-    "msg_class": "H",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "BATCMP",
-        "program": "",
-        "proc": "BUILDBAT",
-        "step_type": "PROC",
-        "comment_lines": [
-          "********************************************************************",
-          "compile the COBOL code:",
-          "********************************************************************"
-        ],
-        "datasets": [],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 42
-      }
-    ],
-    "programs_called": [],
-    "input_datasets": [],
-    "output_datasets": []
-  },
-  {
-    "job_name": "CBLDBMS",
-    "file_name": "BMSCMP.jcl",
-    "file_path": "carddemo\\samples\\jcl\\BMSCMP.jcl",
-    "file_hash": "11a4ca449b912f886ae2abf0c192fc21",
-    "job_description": "Compile BMS Map",
-    "job_class": "A",
-    "msg_class": "H",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "STEP1",
-        "program": "",
-        "proc": "BUILDBMS",
-        "step_type": "PROC",
-        "comment_lines": [],
-        "datasets": [],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 38
-      },
-      {
-        "step_name": "SDSF1",
-        "program": "SDSF",
-        "proc": "",
-        "step_type": "PGM",
-        "comment_lines": [
-          "********************************************************************",
-          "***  CICS commands in batch to Execute NEWCOPY                ******",
-          "********************************************************************"
-        ],
-        "datasets": [
-          {
-            "dd_name": "ISFOUT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "OUTPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "CMDOUT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "OUTPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "ISFIN",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": true
-          }
-        ],
-        "sysin_data": [
-          " /MODIFY CICSAWSA,'CEMT SET PROG(CICSMAP) NEWCOPY'"
-        ],
-        "cond": "",
-        "line_number": 42
-      }
-    ],
-    "programs_called": [
-      "SDSF"
-    ],
-    "input_datasets": [],
-    "output_datasets": []
-  },
-  {
-    "job_name": "CICCMP",
-    "file_name": "CICCMP.jcl",
-    "file_path": "carddemo\\samples\\jcl\\CICCMP.jcl",
-    "file_hash": "badd38d78eaeb0d3ecfcdd571d10946b",
-    "job_description": "Compile CICS Program",
-    "job_class": "A",
-    "msg_class": "H",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "CICSCMP",
-        "program": "",
-        "proc": "BUILDONL",
-        "step_type": "PROC",
-        "comment_lines": [
-          "********************************************************************",
-          "compile the COBOL code:",
-          "********************************************************************"
-        ],
-        "datasets": [],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 41
-      },
-      {
-        "step_name": "NEWCOPY",
-        "program": "SDSF",
-        "proc": "",
-        "step_type": "PGM",
-        "comment_lines": [
-          "********************************************************************",
-          "***  CICS commands in batch to perform NEWCOPY                ******",
-          "********************************************************************"
-        ],
-        "datasets": [
-          {
-            "dd_name": "ISFOUT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "OUTPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "CMDOUT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "OUTPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "ISFIN",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": true
-          }
-        ],
-        "sysin_data": [
-          " /MODIFY CICSAWSA,'CEMT SET PROG(CICSPGMN) NEWCOPY'                             "
-        ],
-        "cond": "4,LT",
-        "line_number": 45
-      }
-    ],
-    "programs_called": [
-      "SDSF"
-    ],
-    "input_datasets": [],
-    "output_datasets": []
-  },
-  {
-    "job_name": "CIDBCMP",
-    "file_name": "CICDBCMP.jcl",
-    "file_path": "carddemo\\samples\\jcl\\CICDBCMP.jcl",
-    "file_hash": "c8a8bddb7eab5037d9b031608f271b55",
-    "job_description": "Compile CICS DB2 PGM",
-    "job_class": "A",
-    "msg_class": "H",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "CICSCMP",
-        "program": "",
-        "proc": "BLDCIDB2",
-        "step_type": "PROC",
-        "comment_lines": [
-          "********************************************************************",
-          "compile the COBOL code:",
-          "********************************************************************"
-        ],
-        "datasets": [],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 54
-      }
-    ],
-    "programs_called": [],
-    "input_datasets": [],
-    "output_datasets": []
-  },
-  {
-    "job_name": "IMSMQCMP",
-    "file_name": "IMSMQCMP.jcl",
-    "file_path": "carddemo\\samples\\jcl\\IMSMQCMP.jcl",
-    "file_hash": "67f1fd52c7d5be4f58856151fa37b01f",
-    "job_description": "",
-    "job_class": "A",
-    "msg_class": "",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "TRN",
-        "program": "DFHECP1",
-        "proc": "",
-        "step_type": "PGM",
-        "comment_lines": [],
-        "datasets": [
-          {
-            "dd_name": "STEPLIB",
-            "dsn": "&CICSHLQ..CICS.SDFHLOAD",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSIN",
-            "dsn": "&HLQ..COBOL.SRC(IMSMQPGM)",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSPRINT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSPUNCH",
-            "dsn": "&&SYSCIN",
-            "disp": "",
-            "disposition_normal": "PASS",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "SYSDA",
-            "space": "400,(400,100",
-            "is_inline": false
-          }
-        ],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 28
-      },
-      {
-        "step_name": "COBOL",
-        "program": "IGYCRCTL",
-        "proc": "",
-        "step_type": "PGM",
-        "comment_lines": [],
-        "datasets": [
-          {
-            "dd_name": "STEPLIB",
-            "dsn": "",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSPRINT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSLIN",
-            "dsn": "",
-            "disp": "MOD",
-            "disposition_normal": "PASS",
-            "disposition_abnormal": "",
-            "direction": "OUTPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "VIO",
-            "space": "TRK,(3,3",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT1",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "VIO",
-            "space": "CYL,(1,1",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT2",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "VIO",
-            "space": "CYL,(1,1",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT3",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "VIO",
-            "space": "CYL,(1,1",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT4",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "VIO",
-            "space": "CYL,(1,1",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT5",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "VIO",
-            "space": "CYL,(1,1",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT6",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "VIO",
-            "space": "CYL,(1,1",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT7",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "VIO",
-            "space": "CYL,(1,1",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT8",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "SYSDA",
-            "space": "CYL,(1,2",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT9",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "SYSDA",
-            "space": "CYL,(1,2",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT10",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "SYSDA",
-            "space": "CYL,(1,2",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT11",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "SYSDA",
-            "space": "CYL,(1,2",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT12",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "SYSDA",
-            "space": "CYL,(1,2",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT13",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "SYSDA",
-            "space": "CYL,(1,2",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT14",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "SYSDA",
-            "space": "CYL,(1,2",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT15",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "SYSDA",
-            "space": "CYL,(1,2",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSMDECK",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "SYSDA",
-            "space": "CYL,(1,2",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSLIB",
-            "dsn": "CEE.SCEESAMP",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSIN",
-            "dsn": "&&SYSCIN",
-            "disp": "OLD",
-            "disposition_normal": "DELETE",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          }
-        ],
-        "sysin_data": [],
-        "cond": "4,LT",
-        "line_number": 37
-      },
-      {
-        "step_name": "COPYIMS",
-        "program": "IEBGENER",
-        "proc": "",
-        "step_type": "UTIL",
-        "comment_lines": [
-          "*********************************",
-          "COPY LINK STEP",
-          "*********************************"
-        ],
-        "datasets": [
-          {
-            "dd_name": "SYSPRINT",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "SYSTEM",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSUT1",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": true
-          }
-        ],
-        "sysin_data": [
-          "   ENTRY IMSMQPGM",
-          "   NAME IMSMQPGM(R)",
-          "//SYSUT2   DD DSN=&&COPYIMS,DISP=(NEW,PASS), DCB=(LRECL=80,BLKSIZE=400,RECFM=FB), UNIT=3390,SPACE=(400,(20,20))",
-          "//SYSPRINT DD SYSOUT=*",
-          "//SYSIN    DD DUMMY",
-          "//*",
-          "//COPYLINK EXEC PGM=IEBGENER,COND=(4,LT)",
-          "//SYSUT1   DD *",
-          "  INCLUDE SYSLIB(DFHELII)",
-          "//SYSUT2   DD DSN=&&COPYLINK,DISP=(NEW,PASS), DCB=(LRECL=80,BLKSIZE=400,RECFM=FB), UNIT=3390,SPACE=(400,(20,20))",
-          "//SYSPRINT DD SYSOUT=*",
-          "//SYSIN    DD DUMMY",
-          "//*",
-          "//COPYMQ   EXEC PGM=IEBGENER,COND=(4,LT)",
-          "//SYSUT1   DD *",
-          " INCLUDE CSQSTUB(CSQCSTUB)",
-          "//SYSUT2   DD DSN=&&COPYMQ,DISP=(NEW,PASS), DCB=(LRECL=80,BLKSIZE=400,RECFM=FB), UNIT=3390,SPACE=(400,(20,20))",
-          "//SYSPRINT DD SYSOUT=*",
-          "//SYSIN    DD DUMMY",
-          "//*",
-          "//LKED   EXEC PGM=IEWL,REGION=0M,PARM='LIST,XREF',COND=(4,LT)",
-          "//SYSLIB   DD DSN=&MQHLQ..SCSQLOAD,DISP=SHR DD DSN=SYS1.LINKLIB,DISP=SHR DD DSN=CEE.SCEELKED,DISP=SHR DD DSN=&CICSHLQ..CICS.SDFHLOAD,DISP=SHR DD DSN=&IMSHLQ..SDFSRESL,DISP=SHR",
-          "//CSQSTUB  DD DSN=&MQHLQ..SCSQLOAD,DISP=SHR",
-          "//SYSLIN   DD DSN=&&COPYLINK,DISP=(OLD,DELETE) DD DSN=&&COPYMQ,DISP=(OLD,DELETE) DD DSN=&&LOADSET,DISP=(OLD,DELETE) DD DSN=&&COPYIMS,DISP=(OLD,DELETE)",
-          "//SYSPRINT DD SYSOUT=*",
-          "//SYSLMOD  DD DSNAME=&HLQ..CICSLOAD(IMSMQPGM), DISP=SHR",
-          "//SYSUT1   DD UNIT=VIO,SPACE=(TRK,(10,10))"
-        ],
-        "cond": "4,LT",
-        "line_number": 71
-      }
-    ],
-    "programs_called": [
-      "DFHECP1",
-      "IGYCRCTL",
-      "IEBGENER"
-    ],
-    "input_datasets": [
-      "&HLQ..COBOL.SRC(IMSMQPGM)",
-      "CEE.SCEESAMP",
-      "&&SYSCIN"
-    ],
-    "output_datasets": []
-  },
-  {
-    "job_name": "LISTFILS",
-    "file_name": "LISTCAT.jcl",
-    "file_path": "carddemo\\samples\\jcl\\LISTCAT.jcl",
-    "file_hash": "985cc4b0608e0c34195c91a2ab0e3a3c",
+    "job_name": "CBPAUP0J",
+    "file_name": "CBPAUP0J.jcl",
+    "file_path": "carddemo\\app\\app-authorization-ims-db2-mq\\jcl\\CBPAUP0J.jcl",
+    "file_hash": "55d96d66410cf823221da331ed1e9456",
     "job_description": "CARDDEMO",
     "job_class": "A",
-    "msg_class": "0",
+    "msg_class": "H",
     "comment_lines": [],
     "steps": [
       {
         "step_name": "STEP01",
+        "program": "DFSRRC00",
+        "proc": "",
+        "step_type": "PGM",
+        "comment_lines": [
+          "*****************************************************************",
+          "Copyright Amazon.com, Inc. or its affiliates.",
+          "All Rights Reserved.",
+          "Licensed under the Apache License, Version 2.0 (the \"License\").",
+          "You may not use this file except in compliance with the License.",
+          "You may obtain a copy of the License at",
+          "http://www.apache.org/licenses/LICENSE-2.0",
+          "Unless required by applicable law or agreed to in writing,",
+          "software distributed under the License is distributed on an",
+          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
+          "either express or implied. See the License for the specific",
+          "language governing permissions and limitations under the License",
+          "*****************************************************************",
+          "*********************************************************************",
+          "EXECUTE IMS PROGRAM TO DELETE EXPIRED AUTHORIZATIONS",
+          "*********************************************************************"
+        ],
+        "datasets": [
+          {
+            "dd_name": "STEPLIB",
+            "dsn": "IMS.SDFSRESL",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSRESLB",
+            "dsn": "IMS.SDFSRESL",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "PROCLIB",
+            "dsn": "IMS.PROCLIB",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSSEL",
+            "dsn": "IMS.SDFSRESL",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IMS",
+            "dsn": "IMS.PSBLIB",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSIN",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": true
+          }
+        ],
+        "sysin_data": [
+          "00,00001,00001,Y",
+          "//*",
+          "//SYSOUX     DD SYSOUT=*",
+          "//SYSOUT     DD SYSOUT=*",
+          "//SYSABOUT   DD SYSOUT=*",
+          "//ABENDAID   DD SYSOUT=*",
+          "//IEFRDER    DD DUMMY",
+          "//IMSLOGR    DD DUMMY",
+          "//SYSPRINT   DD SYSOUT=*",
+          "//SYSUDUMP   DD SYSOUT=*",
+          "//IMSERR     DD SYSOUT=*"
+        ],
+        "cond": "",
+        "line_number": 24
+      }
+    ],
+    "programs_called": [
+      "DFSRRC00"
+    ],
+    "input_datasets": [
+      "IMS.SDFSRESL",
+      "IMS.PROCLIB",
+      "IMS.PSBLIB"
+    ],
+    "output_datasets": []
+  },
+  {
+    "job_name": "DBPAUTP0",
+    "file_name": "DBPAUTP0.jcl",
+    "file_path": "carddemo\\app\\app-authorization-ims-db2-mq\\jcl\\DBPAUTP0.jcl",
+    "file_hash": "d9baf4770f2627c76232ce7b04b150a4",
+    "job_description": "DBPAUTP0 DB UNLOAD",
+    "job_class": "A",
+    "msg_class": "X",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "STEPDEL",
+        "program": "IEFBR14",
+        "proc": "",
+        "step_type": "UTIL",
+        "comment_lines": [
+          "*********************************************************************",
+          "DELETE OUTPUT DATASET",
+          "*********************************************************************"
+        ],
+        "datasets": [
+          {
+            "dd_name": "SYSPRINT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUT1",
+            "dsn": "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0",
+            "disp": "MOD",
+            "disposition_normal": "DELETE",
+            "disposition_abnormal": "",
+            "direction": "OUTPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "SYSDA",
+            "space": "TRK,0",
+            "is_inline": false
+          }
+        ],
+        "sysin_data": [],
+        "cond": "",
+        "line_number": 7
+      },
+      {
+        "step_name": "UNLOAD",
+        "program": "DFSRRC00",
+        "proc": "",
+        "step_type": "PGM",
+        "comment_lines": [
+          "*********************************************************************",
+          "DOWNLOAD DBD DBPAUTP0",
+          "*********************************************************************"
+        ],
+        "datasets": [
+          {
+            "dd_name": "STEPLIB",
+            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSRESLB",
+            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IMS",
+            "dsn": "OEM.IMS.IMSP.PSBLIB",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSPRINT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSURGU1",
+            "dsn": "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0",
+            "disp": "",
+            "disposition_normal": "CATLG",
+            "disposition_abnormal": "DELETE",
+            "direction": "UNKNOWN",
+            "recfm": "VB",
+            "lrecl": "27990",
+            "unit": "SYSDA",
+            "space": "32274,(600,100",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DDPAUTP0",
+            "dsn": "OEM.IMS.IMSP.PAUTHDB",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DDPAUTX0",
+            "dsn": "OEM.IMS.IMSP.PAUTHDBX",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSVSAMP",
+            "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSCTL",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": true
+          }
+        ],
+        "sysin_data": [
+          "SBPARM ACTIV=COND                                                               ",
+          "//SYSUDUMP DD SYSOUT=*, DCB=(RECFM=FBA,LRECL=133), SPACE=(605,(500,500),RLSE,,ROUND)",
+          "//*",
+          "//RECON1 DD DSN=OEM.IMS.IMSP.RECON1,DISP=SHR                                    ",
+          "//RECON2 DD DSN=OEM.IMS.IMSP.RECON2,DISP=SHR                                    ",
+          "//RECON3 DD DSN=OEM.IMS.IMSP.RECON3,DISP=SHR                ",
+          "//*",
+          "//DFSWRK01  DD DUMMY                                                            ",
+          "//DFSSRT01  DD DUMMY                                                       //*",
+          "//*Ver: CardDemo_v2.0-35-gcfa73b2-245 Date: 2025-04-29 17:01:37 CDT",
+          "//*"
+        ],
+        "cond": "",
+        "line_number": 15
+      }
+    ],
+    "programs_called": [
+      "IEFBR14",
+      "DFSRRC00"
+    ],
+    "input_datasets": [
+      "OEMA.IMS.IMSP.SDFSRESL",
+      "OEM.IMS.IMSP.PSBLIB",
+      "OEM.IMS.IMSP.PAUTHDB",
+      "OEM.IMS.IMSP.PAUTHDBX",
+      "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)"
+    ],
+    "output_datasets": [
+      "AWS.M2.CARDDEMO.IMSDATA.DBPAUTP0"
+    ]
+  },
+  {
+    "job_name": "LOADPADB",
+    "file_name": "LOADPADB.JCL",
+    "file_path": "carddemo\\app\\app-authorization-ims-db2-mq\\jcl\\LOADPADB.JCL",
+    "file_hash": "8051347fa5cae20f65779c373edf3cd1",
+    "job_description": "M2APP",
+    "job_class": "A",
+    "msg_class": "H",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "STEP01",
+        "program": "DFSRRC00",
+        "proc": "",
+        "step_type": "PGM",
+        "comment_lines": [
+          "*****************************************************************",
+          "Copyright Amazon.com, Inc. or its affiliates.",
+          "All Rights Reserved.",
+          "Licensed under the Apache License, Version 2.0 (the \"License\").",
+          "You may not use this file except in compliance with the License.",
+          "You may obtain a copy of the License at",
+          "http://www.apache.org/licenses/LICENSE-2.0",
+          "Unless required by applicable law or agreed to in writing,",
+          "software distributed under the License is distributed on an",
+          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
+          "either express or implied. See the License for the specific",
+          "language governing permissions and limitations under the License",
+          "*****************************************************************",
+          "YLIBS JCLLIB ORDER=VIPINGP.CNTL.PROCLIB",
+          "*********************************************************************",
+          "EXECUTE IMS PROGRAM",
+          "*********************************************************************"
+        ],
+        "datasets": [
+          {
+            "dd_name": "STEPLIB",
+            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSRESLB",
+            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IMS",
+            "dsn": "OEM.IMS.IMSP.PSBLIB",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "INFILE1",
+            "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "INFILE2",
+            "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSVSAMP",
+            "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IMSLOGR",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IEFRDER",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSPRINT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUDUMP",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IMSERR",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          }
+        ],
+        "sysin_data": [],
+        "cond": "",
+        "line_number": 26
+      }
+    ],
+    "programs_called": [
+      "DFSRRC00"
+    ],
+    "input_datasets": [
+      "OEMA.IMS.IMSP.SDFSRESL",
+      "OEM.IMS.IMSP.PSBLIB",
+      "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
+      "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+      "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)"
+    ],
+    "output_datasets": []
+  },
+  {
+    "job_name": "UNLDGSAM",
+    "file_name": "UNLDGSAM.JCL",
+    "file_path": "carddemo\\app\\app-authorization-ims-db2-mq\\jcl\\UNLDGSAM.JCL",
+    "file_hash": "fd61c4570d1400f0b60c9ff3588bbc4b",
+    "job_description": "M2APP",
+    "job_class": "A",
+    "msg_class": "H",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "STEP01",
+        "program": "DFSRRC00",
+        "proc": "",
+        "step_type": "PGM",
+        "comment_lines": [
+          "*****************************************************************",
+          "Copyright Amazon.com, Inc. or its affiliates.",
+          "All Rights Reserved.",
+          "Licensed under the Apache License, Version 2.0 (the \"License\").",
+          "You may not use this file except in compliance with the License.",
+          "You may obtain a copy of the License at",
+          "http://www.apache.org/licenses/LICENSE-2.0",
+          "Unless required by applicable law or agreed to in writing,",
+          "software distributed under the License is distributed on an",
+          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
+          "either express or implied. See the License for the specific",
+          "language governing permissions and limitations under the License",
+          "*****************************************************************",
+          "*********************************************************************",
+          "EXECUTE IMS PROGRAM",
+          "*********************************************************************"
+        ],
+        "datasets": [
+          {
+            "dd_name": "STEPLIB",
+            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSRESLB",
+            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IMS",
+            "dsn": "OEM.IMS.IMSP.PSBLIB",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "PASFILOP",
+            "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.GSAM",
+            "disp": "OLD",
+            "disposition_normal": "KEEP",
+            "disposition_abnormal": "KEEP",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "PADFILOP",
+            "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.GSAM",
+            "disp": "OLD",
+            "disposition_normal": "KEEP",
+            "disposition_abnormal": "KEEP",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DDPAUTP0",
+            "dsn": "OEM.IMS.IMSP.PAUTHDB",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DDPAUTX0",
+            "dsn": "OEM.IMS.IMSP.PAUTHDBX",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSVSAMP",
+            "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IMSLOGR",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IEFRDER",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSPRINT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUDUMP",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IMSERR",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          }
+        ],
+        "sysin_data": [],
+        "cond": "",
+        "line_number": 26
+      }
+    ],
+    "programs_called": [
+      "DFSRRC00"
+    ],
+    "input_datasets": [
+      "OEMA.IMS.IMSP.SDFSRESL",
+      "OEM.IMS.IMSP.PSBLIB",
+      "AWS.M2.CARDDEMO.PAUTDB.ROOT.GSAM",
+      "AWS.M2.CARDDEMO.PAUTDB.CHILD.GSAM",
+      "OEM.IMS.IMSP.PAUTHDB",
+      "OEM.IMS.IMSP.PAUTHDBX",
+      "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)"
+    ],
+    "output_datasets": []
+  },
+  {
+    "job_name": "UNLDPADB",
+    "file_name": "UNLDPADB.JCL",
+    "file_path": "carddemo\\app\\app-authorization-ims-db2-mq\\jcl\\UNLDPADB.JCL",
+    "file_hash": "c19404269f64ae56649682ad1df494a2",
+    "job_description": "M2APP",
+    "job_class": "A",
+    "msg_class": "H",
+    "comment_lines": [],
+    "steps": [
+      {
+        "step_name": "STEP0",
         "program": "IEFBR14",
         "proc": "",
         "step_type": "UTIL",
@@ -10483,113 +10530,13 @@
           "either express or implied. See the License for the specific",
           "language governing permissions and limitations under the License",
           "*****************************************************************",
-          "******************************************************************",
-          "List catalog for all the files in CARDDEMO application",
-          "******************************************************************"
+          "*********************************************************************",
+          "EXECUTE IMS PROGRAM",
+          "*********************************************************************"
         ],
-        "datasets": [
-          {
-            "dd_name": "DD1",
-            "dsn": "AWS.M2.CARDDEMO.LISTCAT",
-            "disp": "MOD",
-            "disposition_normal": "DELETE",
-            "disposition_abnormal": "DELETE",
-            "direction": "OUTPUT",
-            "recfm": "FBA",
-            "lrecl": "133",
-            "unit": "SYSDA",
-            "space": "TRK,(1,1",
-            "is_inline": false
-          }
-        ],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 21
-      },
-      {
-        "step_name": "STEP05",
-        "program": "IDCAMS",
-        "proc": "",
-        "step_type": "UTIL",
-        "comment_lines": [],
         "datasets": [
           {
             "dd_name": "SYSPRINT",
-            "dsn": "AWS.M2.CARDDEMO.LISTCAT",
-            "disp": "NEW",
-            "disposition_normal": "CATLG",
-            "disposition_abnormal": "DELETE",
-            "direction": "SYSTEM",
-            "recfm": "FBA",
-            "lrecl": "133",
-            "unit": "SYSDA",
-            "space": "TRK,(1,1",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYSIN",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": true
-          }
-        ],
-        "sysin_data": [
-          "   LISTCAT LEVEL(AWS.M2.CARDDEMO)  -",
-          "           ALL"
-        ],
-        "cond": "0,NE",
-        "line_number": 27
-      }
-    ],
-    "programs_called": [
-      "IEFBR14",
-      "IDCAMS"
-    ],
-    "input_datasets": [],
-    "output_datasets": [
-      "AWS.M2.CARDDEMO.LISTCAT"
-    ]
-  },
-  {
-    "job_name": "RACFCMDS",
-    "file_name": "RACFCMDS.jcl",
-    "file_path": "carddemo\\samples\\jcl\\RACFCMDS.jcl",
-    "file_hash": "1a4e1b5b47e019187f8e576eac1bf712",
-    "job_description": "",
-    "job_class": "A",
-    "msg_class": "Y",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "TSOBAT",
-        "program": "IKJEFT01",
-        "proc": "",
-        "step_type": "UTIL",
-        "comment_lines": [
-          "*****************************************************************",
-          "Copyright Amazon.com, Inc. or its affiliates.",
-          "All Rights Reserved.",
-          "Licensed under the Apache License, Version 2.0 (the \"License\").",
-          "You may not use this file except in compliance with the License.",
-          "You may obtain a copy of the License at",
-          "http://www.apache.org/licenses/LICENSE-2.0",
-          "Unless required by applicable law or agreed to in writing,",
-          "software distributed under the License is distributed on an",
-          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
-          "either express or implied. See the License for the specific",
-          "language governing permissions and limitations under the License",
-          "*****************************************************************"
-        ],
-        "datasets": [
-          {
-            "dd_name": "SYSTSPRT",
             "dsn": "",
             "disp": "",
             "disposition_normal": "",
@@ -10600,161 +10547,6 @@
             "unit": "",
             "space": "",
             "is_inline": false
-          },
-          {
-            "dd_name": "SYSTSIN",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": true
-          },
-          {
-            "dd_name": "SYSTSIN",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": true
-          }
-        ],
-        "sysin_data": [
-          " RALT GCICSTRN CARD ADDMEM(CT02)                                                ",
-          " CONNECT AWSCODR GROUP(M2APPDEV)                                                "
-        ],
-        "cond": "",
-        "line_number": 19
-      }
-    ],
-    "programs_called": [
-      "IKJEFT01"
-    ],
-    "input_datasets": [],
-    "output_datasets": []
-  },
-  {
-    "job_name": "REPRTEST",
-    "file_name": "REPRTEST.jcl",
-    "file_path": "carddemo\\samples\\jcl\\REPRTEST.jcl",
-    "file_hash": "6a509bf0b6606a756643c766112775a2",
-    "job_description": "REPRO TEST JOB",
-    "job_class": "A",
-    "msg_class": "0",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "STEP05",
-        "program": "",
-        "proc": "REPROC",
-        "step_type": "PROC",
-        "comment_lines": [],
-        "datasets": [
-          {
-            "dd_name": "PRC001.FILEIN",
-            "dsn": "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "PRC001.FILEOUT",
-            "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP(+1)",
-            "disp": "NEW",
-            "disposition_normal": "CATLG",
-            "disposition_abnormal": "DELETE",
-            "direction": "OUTPUT",
-            "recfm": "FB",
-            "lrecl": "350",
-            "unit": "SYSDA",
-            "space": "CYL,(1,1",
-            "is_inline": false
-          }
-        ],
-        "sysin_data": [],
-        "cond": "",
-        "line_number": 23
-      }
-    ],
-    "programs_called": [],
-    "input_datasets": [
-      "AWS.M2.CARDDEMO.TRANSACT.VSAM.KSDS"
-    ],
-    "output_datasets": [
-      "AWS.M2.CARDDEMO.TRANSACT.BKUP(+1)"
-    ]
-  },
-  {
-    "job_name": "SORTTEST",
-    "file_name": "SORTTEST.jcl",
-    "file_path": "carddemo\\samples\\jcl\\SORTTEST.jcl",
-    "file_hash": "3263dddd46b40990033f4d5bb35670f6",
-    "job_description": "SORT STEP TESTING",
-    "job_class": "A",
-    "msg_class": "0",
-    "comment_lines": [],
-    "steps": [
-      {
-        "step_name": "STEP05R",
-        "program": "SORT",
-        "proc": "",
-        "step_type": "UTIL",
-        "comment_lines": [
-          "*****************************************************************",
-          "Copyright Amazon.com, Inc. or its affiliates.",
-          "All Rights Reserved.",
-          "Licensed under the Apache License, Version 2.0 (the \"License\").",
-          "You may not use this file except in compliance with the License.",
-          "You may obtain a copy of the License at",
-          "http://www.apache.org/licenses/LICENSE-2.0",
-          "Unless required by applicable law or agreed to in writing,",
-          "software distributed under the License is distributed on an",
-          "\"AS IS\" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,",
-          "either express or implied. See the License for the specific",
-          "language governing permissions and limitations under the License",
-          "*****************************************************************"
-        ],
-        "datasets": [
-          {
-            "dd_name": "SORTIN",
-            "dsn": "AWS.M2.CARDDEMO.TRANSACT.BKUP(0)",
-            "disp": "SHR",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "INPUT",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": false
-          },
-          {
-            "dd_name": "SYMNAMES",
-            "dsn": "",
-            "disp": "",
-            "disposition_normal": "",
-            "disposition_abnormal": "",
-            "direction": "UNKNOWN",
-            "recfm": "",
-            "lrecl": "",
-            "unit": "",
-            "space": "",
-            "is_inline": true
           },
           {
             "dd_name": "SYSOUT",
@@ -10770,39 +10562,247 @@
             "is_inline": false
           },
           {
-            "dd_name": "SORTOUT",
-            "dsn": "AWS.M2.CARDDEMO.TRANSACT.DALY(+1)",
+            "dd_name": "SYSDUMP",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DD1",
+            "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
+            "disp": "OLD",
+            "disposition_normal": "DELETE",
+            "disposition_abnormal": "DELETE",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DD2",
+            "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+            "disp": "OLD",
+            "disposition_normal": "DELETE",
+            "disposition_abnormal": "DELETE",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          }
+        ],
+        "sysin_data": [],
+        "cond": "",
+        "line_number": 25
+      },
+      {
+        "step_name": "STEP01",
+        "program": "DFSRRC00",
+        "proc": "",
+        "step_type": "PGM",
+        "comment_lines": [],
+        "datasets": [
+          {
+            "dd_name": "STEPLIB",
+            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSRESLB",
+            "dsn": "OEMA.IMS.IMSP.SDFSRESL",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IMS",
+            "dsn": "OEM.IMS.IMSP.PSBLIB",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "OUTFIL1",
+            "dsn": "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
             "disp": "NEW",
             "disposition_normal": "CATLG",
             "disposition_abnormal": "DELETE",
             "direction": "OUTPUT",
+            "recfm": "FB",
+            "lrecl": "100",
+            "unit": "3390",
+            "space": "400,(20,20",
+            "is_inline": false
+          },
+          {
+            "dd_name": "OUTFIL2",
+            "dsn": "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+            "disp": "NEW",
+            "disposition_normal": "CATLG",
+            "disposition_abnormal": "DELETE",
+            "direction": "OUTPUT",
+            "recfm": "FB",
+            "lrecl": "206",
+            "unit": "3390",
+            "space": "400,(20,20",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DDPAUTP0",
+            "dsn": "OEM.IMS.IMSP.PAUTHDB",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
             "recfm": "",
             "lrecl": "",
-            "unit": "SYSDA",
-            "space": "CYL,(1,1",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DDPAUTX0",
+            "dsn": "OEM.IMS.IMSP.PAUTHDBX",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "DFSVSAMP",
+            "dsn": "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)",
+            "disp": "SHR",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "INPUT",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IMSLOGR",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IEFRDER",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSPRINT",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "SYSUDUMP",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "SYSTEM",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
+            "is_inline": false
+          },
+          {
+            "dd_name": "IMSERR",
+            "dsn": "",
+            "disp": "",
+            "disposition_normal": "",
+            "disposition_abnormal": "",
+            "direction": "UNKNOWN",
+            "recfm": "",
+            "lrecl": "",
+            "unit": "",
+            "space": "",
             "is_inline": false
           }
         ],
-        "sysin_data": [
-          "TRAN-CARD-NUM,263,16,ZD",
-          "TRAN-PROC-DT,305,10,CH               ",
-          "PARM-DATE,C'2022-06-02'                              ",
-          "//SYSIN    DD *                                                         ",
-          " SORT FIELDS=(TRAN-CARD-NUM,A) ",
-          " INCLUDE COND=(TRAN-PROC-DT,EQ,PARM-DATE)                                       "
-        ],
+        "sysin_data": [],
         "cond": "",
-        "line_number": 19
+        "line_number": 38
       }
     ],
     "programs_called": [
-      "SORT"
+      "IEFBR14",
+      "DFSRRC00"
     ],
     "input_datasets": [
-      "AWS.M2.CARDDEMO.TRANSACT.BKUP(0)"
+      "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
+      "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO",
+      "OEMA.IMS.IMSP.SDFSRESL",
+      "OEM.IMS.IMSP.PSBLIB",
+      "OEM.IMS.IMSP.PAUTHDB",
+      "OEM.IMS.IMSP.PAUTHDBX",
+      "OEMPP.IMS.V15R01MB.PROCLIB(DFSVSMDB)"
     ],
     "output_datasets": [
-      "AWS.M2.CARDDEMO.TRANSACT.DALY(+1)"
+      "AWS.M2.CARDDEMO.PAUTDB.ROOT.FILEO",
+      "AWS.M2.CARDDEMO.PAUTDB.CHILD.FILEO"
     ]
   }
 ]

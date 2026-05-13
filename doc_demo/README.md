@@ -38,30 +38,75 @@ The checked-in generated artifacts currently describe:
 
 ## Architecture
 
+Two enrichment modes are available:
+
+### Mode A (Default): JSON-based Enrichment → SQLite → Neo4j
 ```text
 AWS CardDemo source
-  COBOL .cbl/.cob, copybooks .cpy, BMS maps, JCL
-        |
-        v
-ProLeap + custom parsers
-  parsed_output/programs.json
-  parsed_output/copybooks.json
-  parsed_output/screens.json
-  parsed_output/jcl_jobs.json
-        |
-        v
-Optional LLM enrichment
-  enriched_output/enriched_programs.json
-  enriched_output/business_rules.json
-        |
-        v
-SQLite knowledge base
-  data/cobol_knowledge.db
-        |
-        +--> Markdown documentation in docs/
-        +--> Streamlit dashboard in src/app.py
-        +--> Optional Neo4j graph export
+  ↓
+Step 1: Parse with ProLeap + custom parsers
+  ├─ parsed_output/programs.json
+  ├─ parsed_output/copybooks.json
+  ├─ parsed_output/screens.json
+  └─ parsed_output/jcl_jobs.json
+  ↓
+Step 2: LLM enrichment on parsed JSON (langgraph_enricher)
+  ├─ enriched_output/enriched_programs.json
+  └─ enriched_output/business_rules.json
+  ↓
+Step 3: Load enriched data into SQLite
+  └─ data/cobol_knowledge.db
+  ↓
+Step 4: Generate Markdown docs
+  └─ docs/
+  ↓
+Step 5: Optional Neo4j export (no further enrichment)
+  └─ Neo4j graph
 ```
+
+### Mode B (New): SQLite → Neo4j → Graph-based LLM Enrichment
+Use this when you want LLM to consider program dependencies and data flow relationships.
+
+```text
+AWS CardDemo source
+  ↓
+Step 1: Parse with ProLeap + custom parsers (as-is, no enrichment)
+  ├─ parsed_output/programs.json
+  ├─ parsed_output/copybooks.json
+  ├─ parsed_output/screens.json
+  └─ parsed_output/jcl_jobs.json
+  ↓
+Step 2: [SKIPPED] No JSON enrichment
+  ↓
+Step 3: Load raw parsed data into SQLite
+  └─ data/cobol_knowledge.db
+  ↓
+Step 5: Export to Neo4j (builds call graph, data flow)
+  └─ Neo4j graph
+  ↓
+Step 5b: LLM enrichment using graph structure (neo4j_enricher)
+         Enricher reads: call graph, data dependencies, relationships
+         LLM analyzes: integration points, migration complexity, risks
+         Writes back to Neo4j: enriched program metadata
+  ↓
+Step 4: Generate Markdown docs (using graph-enriched metadata)
+  └─ docs/ [with richer graph-based context]
+```
+
+### Which mode should I use?
+
+- **Mode A (JSON)**: Fast, works offline, enrichment based on code syntax alone
+- **Mode B (Graph)**: Slower, needs Neo4j, enrichment considers architectural relationships
+
+Enable Mode B by passing `graph_enrich_after_neo4j=True` to the pipeline:
+```python
+run_pipeline(
+    repo_path="./carddemo",
+    graph_enrich_after_neo4j=True,
+    skip_neo4j=False,
+)
+```
+
 
 ## Folder Guide
 

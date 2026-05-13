@@ -18,7 +18,7 @@ from datetime import datetime
 
 from rich.console import Console
 
-console = Console(force_terminal=True, highlight=False)
+console = Console(force_terminal=True, highlight=False, legacy_windows=False)
 
 
 class DependencyAnalyzer:
