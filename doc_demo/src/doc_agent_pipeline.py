@@ -9,6 +9,8 @@ import os
 import json
 import re
 import functools
+import sqlite3
+from pathlib import Path
 from typing import Any, Dict, Literal, TypedDict
 
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -16,9 +18,24 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import StateGraph, START, END
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
 
-from rich.console import Console
 from context_engine import apply_document_coverage
-console = Console(force_terminal=True, highlight=False, legacy_windows=False)
+
+
+class SafeConsole:
+    def print(self, *args, **kwargs):
+        try:
+            print(*[str(arg) for arg in args])
+        except Exception:
+            pass
+
+
+console = SafeConsole()
+
+
+def _sqlite_connect(db_path: str):
+    if os.name == "nt":
+        return sqlite3.connect(Path(db_path).resolve().as_uri(), uri=True)
+    return sqlite3.connect(db_path)
 
 
 # ── State ──────────────────────────────────────────────────────────────────────
@@ -541,7 +558,6 @@ def _grounding_node(state: DocAgentState) -> dict:
 
 
 def _save_node(state: DocAgentState, db_path: str) -> dict:
-    import sqlite3
     if not state.get("grounding_passed", True):
         console.print("[yellow]  Save: skipped because source-grounding checks failed.[/yellow]")
         return {"saved": False}
@@ -553,7 +569,7 @@ def _save_node(state: DocAgentState, db_path: str) -> dict:
             context_metadata=state.get("context_metadata", {}) or {},
             coverage_ledger=state.get("coverage_ledger", {}) or {},
         )
-        conn = sqlite3.connect(db_path)
+        conn = _sqlite_connect(db_path)
         try:
             conn.execute("ALTER TABLE generated_docs ADD COLUMN context_metadata_json TEXT")
         except Exception:

@@ -25,7 +25,6 @@ from pathlib import Path
 import os
 from typing import Any, Dict, List, Optional, TypedDict
 
-from rich.console import Console
 from langchain_core.messages import HumanMessage, SystemMessage
 from pydantic import BaseModel, Field
 
@@ -38,7 +37,22 @@ except Exception:  # pragma: no cover - fallback keeps CLI usable without LangGr
 from sqlite_loader import SQLiteLoader
 from doc_agent_pipeline import _get_llm
 
-console = Console(force_terminal=True, highlight=False, legacy_windows=False)
+
+class SafeConsole:
+    def print(self, *args, **kwargs):
+        try:
+            print(*[str(arg) for arg in args])
+        except Exception:
+            pass
+
+
+console = SafeConsole()
+
+
+def _sqlite_connect(db_path: str):
+    if os.name == "nt":
+        return sqlite3.connect(Path(db_path).resolve().as_uri(), uri=True)
+    return sqlite3.connect(db_path)
 
 
 class ArtifactDocState(TypedDict, total=False):
@@ -1526,7 +1540,7 @@ def _artifact_agent_save_node(state: ArtifactDocState) -> Dict[str, Any]:
     mode = state["artifact_type"]
     subject = state["subject"]
     try:
-        conn = sqlite3.connect(state["db_path"])
+        conn = _sqlite_connect(state["db_path"])
         conn.execute("""
             CREATE TABLE IF NOT EXISTS generated_docs (
                 mode TEXT NOT NULL,

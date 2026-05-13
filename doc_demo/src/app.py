@@ -16,7 +16,7 @@ import sys
 import json
 from pathlib import Path
 from dotenv import load_dotenv
-load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env")
+load_dotenv(dotenv_path=Path(__file__).parent.parent / ".env", override=True)
 import sqlite3
 import pandas as pd
 import tempfile
@@ -191,6 +191,10 @@ section[data-testid="stSidebar"] .streamlit-expanderContent {
     padding: 0 !important;
     border: none !important;
 }
+section[data-testid="stSidebar"] details summary,
+section[data-testid="stSidebar"] details summary * {
+    color: #ffffff !important;
+}
 
 /* ── Main content buttons ── */
 .main .stButton > button {
@@ -204,6 +208,88 @@ section[data-testid="stSidebar"] .streamlit-expanderContent {
 .metric-card {
     padding: 15px; border-radius: 8px; background-color: #1e1e1e;
     border: 1px solid #333; text-align: center;
+}
+.overview-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 18px;
+    margin: 6px 0 26px;
+}
+.overview-action-card {
+    background: #00df8f;
+    border: 2px solid #007a78;
+    border-bottom: 5px solid #00f0f0;
+    color: #003c3c;
+    min-height: 112px;
+    padding: 24px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 4px;
+    box-shadow: 0 10px 20px rgba(0, 60, 60, 0.10);
+}
+.overview-action-card.alt {
+    background: #003c3c;
+    border-color: #00df8f;
+    color: #ffffff;
+}
+.overview-action-title {
+    font-size: 23px;
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: 0;
+}
+.overview-action-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 4px;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.26);
+    color: inherit;
+    font-size: 26px;
+    font-weight: 800;
+}
+.overview-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(150px, 1fr));
+    gap: 16px;
+    margin-top: 4px;
+}
+.overview-stat-card {
+    background: #ffffff;
+    border: 1px solid #d5eeee;
+    border-left: 8px solid #00df8f;
+    border-radius: 4px;
+    padding: 18px 20px 16px;
+    min-height: 118px;
+    box-shadow: 0 8px 18px rgba(0, 60, 60, 0.08);
+}
+.overview-stat-card:nth-child(2n) { border-left-color: #00f0f0; }
+.overview-stat-card:nth-child(3n) { border-left-color: #c7ff78; }
+.overview-stat-label {
+    color: #003c3c;
+    font-size: 14px;
+    font-weight: 650;
+    margin-bottom: 12px;
+}
+.overview-stat-value {
+    color: #202944;
+    font-size: 44px;
+    font-weight: 500;
+    line-height: 1;
+}
+@media (max-width: 980px) {
+    .overview-actions,
+    .overview-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 640px) {
+    .overview-actions,
+    .overview-stats-grid {
+        grid-template-columns: 1fr;
+    }
 }
 .risk-high   { color: #f85149; font-weight: bold; }
 .risk-medium { color: #d29922; font-weight: bold; }
@@ -494,8 +580,19 @@ def render_sidebar():
                     st.session_state.open_file_path = fp
                     st.rerun()
 
-                    
-        st.markdown('<div style="height:1px;background:#007a78;margin:8px 0;"></div>',
+        st.markdown('<div style="height:1px;background:#00df8f;margin:10px 0 2px;"></div>',
+                    unsafe_allow_html=True)
+        st.markdown('<span class="sb-section">Unisys Migration</span>', unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div class="tree-file">LDL+</div>
+            <div class="tree-file">Java</div>
+            <div class="tree-file">C#</div>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.markdown('<div style="height:1px;background:#00df8f;margin:8px 0;"></div>',
                     unsafe_allow_html=True)
 
         # ── Pipeline controls ────────────────────────────────────────────────
@@ -568,17 +665,40 @@ def page_overview():
     online = [p for p in programs if p.get("program_type") == "ONLINE"]
     batch  = [p for p in programs if p.get("program_type") != "ONLINE"]
 
-    c1, c2, c3, c4, c5 = st.columns(5)
-    c1.metric("Total Programs", len(programs))
-    c2.metric("Online (CICS)", len(online))
-    c3.metric("Batch", len(batch))
-    c4.metric("Modules", len(modules))
-    c5.metric("Business Rules", len(rules))
+    st.markdown(
+        """
+        <div class="overview-actions">
+            <div class="overview-action-card">
+                <div class="overview-action-title">Connect To<br>OnPrem IBM Z</div>
+                <div class="overview-action-icon">Z</div>
+            </div>
+            <div class="overview-action-card alt">
+                <div class="overview-action-title">Connect To<br>Cloud Hosted IBM Z</div>
+                <div class="overview-action-icon">Z</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
-    c6, c7, c8 = st.columns(3)
-    c6.metric("BMS Screens", len(screens))
-    c7.metric("Inter-Program Calls", len(cg))
-    c8.metric("Enriched Programs", sum(1 for p in programs if p.get("business_purpose")))
+    stats = [
+        ("Total Programs", len(programs)),
+        ("Online (CICS)", len(online)),
+        ("Batch", len(batch)),
+        ("Modules", len(modules)),
+        ("Business Rules", len(rules)),
+        ("BMS Screens", len(screens)),
+        ("Inter-Program Calls", len(cg)),
+        ("Enriched Programs", sum(1 for p in programs if p.get("business_purpose"))),
+    ]
+    stats_html = "".join(
+        '<div class="overview-stat-card">'
+        f'<div class="overview-stat-label">{label}</div>'
+        f'<div class="overview-stat-value">{value}</div>'
+        '</div>'
+        for label, value in stats
+    )
+    st.markdown(f'<div class="overview-stats-grid">{stats_html}</div>', unsafe_allow_html=True)
 
     st.divider()
     st.subheader("System Architecture")
@@ -1337,8 +1457,6 @@ def page_explorer():
         bpurp = details.get("business_purpose")
         if bpurp:
             st.info(bpurp)
-        else:
-            st.warning("No business purpose extracted yet. Run LLM enrichment.")
 
         c1, c2, c3 = st.columns(3)
         c1.metric("Type", details.get("program_type") or "-")
@@ -1439,7 +1557,7 @@ def page_explorer():
     with tab_rules:
         rules = details.get("business_rules") or []
         if not rules:
-            st.info("No business rules extracted yet. Run LLM enrichment.")
+            st.info("No business rules available for this program.")
         else:
             for r in rules:
                 with st.expander(f"**{r.get('rule_id','?')}** — {r.get('rule_name','?')}", expanded=False):
@@ -2101,6 +2219,13 @@ def page_artifact_docs(output_dir: str):
                     st.session_state[f"{cache_key}_context"] = context
                     st.success("Artifact documentation generated via Writer -> Critique -> Formatter -> Grounding.")
                 except Exception as e:
+                    try:
+                        (PROJECT_ROOT / "streamlit_error.log").write_text(
+                            traceback.format_exc(),
+                            encoding="utf-8",
+                        )
+                    except Exception:
+                        pass
                     st.error(f"Artifact agent failed: {e}")
                     loader.close()
                     return
@@ -2286,7 +2411,7 @@ def page_rules():
         return
 
     if not rules:
-        st.warning("No business rules extracted yet. Run LLM enrichment (enable 'AI Enrichment' in the sidebar and re-run the pipeline).")
+        st.info("No business rules available.")
         return
 
     categories = sorted({r.get("category", "GENERAL") for r in rules})
@@ -3158,67 +3283,78 @@ Write the full Architecture Document now. Do not truncate any section:"""
         return f"Error generating documentation: {e}"
 
 def _markdown_to_pdf(markdown_text: str, title: str) -> bytes:
-    """Convert Markdown text to PDF bytes using reportlab."""
-    from reportlab.lib.pagesizes import A4
-    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-    from reportlab.lib.units import inch
-    from reportlab.lib import colors
-    from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, HRFlowable
-    from reportlab.lib.enums import TA_LEFT, TA_CENTER
-    from doc_agent_pipeline import run_doc_pipeline
+    """Convert Markdown text to PDF bytes using fpdf2."""
+    from fpdf import FPDF
+    import re
+    import textwrap
 
-    buffer = io.BytesIO()
-    doc = SimpleDocTemplate(
-        buffer, pagesize=A4,
-        rightMargin=inch, leftMargin=inch,
-        topMargin=inch, bottomMargin=inch,
-        title=title,
-    )
+    def clean(text: str) -> str:
+        text = re.sub(r"`([^`]+)`", r"\1", text)
+        text = re.sub(r"\*\*([^*]+)\*\*", r"\1", text)
+        text = re.sub(r"\*([^*]+)\*", r"\1", text)
+        text = text.replace(chr(8212), "-").replace(chr(8211), "-").replace(chr(8226), "-")
+        text = text.replace(chr(8594), "->").replace(chr(8592), "<-")
+        return text.encode("latin-1", "replace").decode("latin-1")
 
-    styles = getSampleStyleSheet()
-    style_h1 = ParagraphStyle("H1", parent=styles["Heading1"], fontSize=18, spaceAfter=12, textColor=colors.HexColor("#1a1a2e"))
-    style_h2 = ParagraphStyle("H2", parent=styles["Heading2"], fontSize=14, spaceAfter=8, spaceBefore=16, textColor=colors.HexColor("#16213e"))
-    style_h3 = ParagraphStyle("H3", parent=styles["Heading3"], fontSize=12, spaceAfter=6, spaceBefore=10, textColor=colors.HexColor("#0f3460"))
-    style_body = ParagraphStyle("Body", parent=styles["Normal"], fontSize=10, spaceAfter=6, leading=14)
-    style_bullet = ParagraphStyle("Bullet", parent=styles["Normal"], fontSize=10, leftIndent=20, spaceAfter=4, bulletIndent=10)
-    style_code = ParagraphStyle("Code", parent=styles["Code"], fontSize=8, backColor=colors.HexColor("#f4f4f4"), spaceAfter=6, leading=12)
+    pdf = FPDF()
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_margins(15, 15, 15)
+    pdf.add_page()
+    pdf.set_fill_color(0, 60, 60)
+    pdf.set_text_color(255, 255, 255)
+    pdf.set_font("Helvetica", "B", 16)
+    pdf.cell(0, 12, clean(title), new_x="LMARGIN", new_y="NEXT", fill=True)
+    pdf.ln(5)
 
-    story = []
+    def write_text(text: str, height: float, fill: bool = False):
+        safe = clean(text)
+        for part in textwrap.wrap(safe, width=100, break_long_words=True, replace_whitespace=False) or [""]:
+            pdf.set_x(15)
+            pdf.multi_cell(180, height, part, new_x="LMARGIN", new_y="NEXT", fill=fill)
 
-    for line in markdown_text.split("\n"):
-        line_stripped = line.strip()
-        if not line_stripped:
-            story.append(Spacer(1, 6))
+    in_code = False
+    for raw_line in markdown_text.splitlines():
+        line = raw_line.rstrip()
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            in_code = not in_code
             continue
-
-        # Escape XML special chars
-        safe = line_stripped.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
-
-        if line_stripped.startswith("# "):
-            story.append(Paragraph(safe[2:], style_h1))
-            story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#1a1a2e")))
-        elif line_stripped.startswith("## "):
-            story.append(Paragraph(safe[3:], style_h2))
-        elif line_stripped.startswith("### "):
-            story.append(Paragraph(safe[4:], style_h3))
-        elif line_stripped.startswith("- ") or line_stripped.startswith("* "):
-            story.append(Paragraph(f"• {safe[2:]}", style_bullet))
-        elif line_stripped.startswith("  * ") or line_stripped.startswith("  - "):
-            story.append(Paragraph(f"   {safe[4:]}", style_bullet))
-        elif line_stripped.startswith("`") and line_stripped.endswith("`"):
-            story.append(Paragraph(safe[1:-1], style_code))
-        elif line_stripped.startswith("**") and line_stripped.endswith("**"):
-            story.append(Paragraph(f"<b>{safe[2:-2]}</b>", style_body))
+        if not stripped:
+            pdf.ln(3)
+            continue
+        if in_code:
+            pdf.set_font("Courier", "", 8)
+            pdf.set_fill_color(245, 248, 248)
+            pdf.set_text_color(32, 41, 68)
+            write_text(line, 4.5, fill=True)
+        elif stripped.startswith("# "):
+            pdf.ln(3)
+            pdf.set_font("Helvetica", "B", 15)
+            pdf.set_text_color(0, 60, 60)
+            write_text(stripped[2:], 8)
+        elif stripped.startswith("## "):
+            pdf.ln(2)
+            pdf.set_font("Helvetica", "B", 13)
+            pdf.set_text_color(0, 122, 120)
+            write_text(stripped[3:], 7)
+        elif stripped.startswith("### "):
+            pdf.set_font("Helvetica", "B", 11)
+            pdf.set_text_color(0, 60, 60)
+            write_text(stripped[4:], 6)
+        elif stripped.startswith(("- ", "* ")):
+            pdf.set_font("Helvetica", "", 9.5)
+            pdf.set_text_color(32, 41, 68)
+            write_text("- " + stripped[2:], 5.5)
         else:
-            # Handle inline bold
-            import re
-            formatted = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', safe)
-            formatted = re.sub(r'\*(.+?)\*', r'<i>\1</i>', formatted)
-            story.append(Paragraph(formatted, style_body))
-
-    doc.build(story)
-    return buffer.getvalue()
-
+            pdf.set_font("Helvetica", "", 9.5)
+            pdf.set_text_color(32, 41, 68)
+            write_text(stripped, 5.5)
+    output = pdf.output(dest="S")
+    if isinstance(output, bytearray):
+        return bytes(output)
+    if isinstance(output, bytes):
+        return output
+    return output.encode("latin-1")
 def _fetch_application_subgraph(loader) -> dict:
     """
     Fetch system-wide data for application-level documentation.
@@ -4142,10 +4278,10 @@ def page_doc_generator():
     col_btn, col_regen, col_clear = st.columns([2, 1, 1])
     with col_btn:
         generate = st.button(
-            "Generate Documentation" if not saved_doc else "✓ Documentation Ready",
+            "Generate Documentation",
             type="primary",
             use_container_width=True,
-            disabled=bool(saved_doc),   # greyed out if already saved
+            help="Run the documentation pipeline and overwrite any saved version.",
         )
     with col_regen:
         regenerate = st.button(
@@ -4160,7 +4296,7 @@ def page_doc_generator():
             st.rerun()
 
     # ── Determine whether to run the pipeline ─────────────────────────────────
-    run_pipeline = (generate and not saved_doc) or regenerate
+    run_pipeline = generate or regenerate
 
     # ── Load or generate ───────────────────────────────────────────────────────
     if run_pipeline or saved_doc or cache_key in st.session_state:
@@ -4218,6 +4354,13 @@ def page_doc_generator():
                         coverage_ledger=coverage_ledger,
                     )
                 except Exception as exc:
+                    try:
+                        (PROJECT_ROOT / "streamlit_error.log").write_text(
+                            traceback.format_exc(),
+                            encoding="utf-8",
+                        )
+                    except Exception:
+                        pass
                     msg = str(exc)
                     if "127.0.0.1:9" in msg or "tcp handshaker shutdown" in msg:
                         st.error(
@@ -4349,9 +4492,9 @@ def page_doc_generator():
                 use_container_width=True,
             )
         with col_pdf:
-            with st.spinner("Generating PDF…"):
+            if st.button("Prepare PDF", use_container_width=True, key=f"{cache_key}_prepare_pdf"):
                 try:
-                    pdf_bytes = _markdown_to_pdf(doc_text, f"{subject} — Documentation")
+                    pdf_bytes = _markdown_to_pdf(doc_text, f"{subject} - Documentation")
                     st.download_button(
                         label="Download as PDF",
                         data=pdf_bytes,
