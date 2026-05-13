@@ -69,6 +69,8 @@ class SQLiteLoader:
             ("programs", "dependencies_to_migrate_first", "TEXT"),
             ("generated_docs", "context_metadata_json",   "TEXT"),
             ("generated_docs", "coverage_ledger_json",    "TEXT"),
+            ("statements", "raw_text",                    "TEXT"),
+            ("statements", "normalized_text",             "TEXT"),
         ]
         cursor = self.conn.cursor()
         for table, col, coltype in new_columns:
@@ -570,19 +572,24 @@ class SQLiteLoader:
                     # Insert ALL statements (new: this was empty before)
                     for stmt in program.get("statements", []):
                         details = {k: v for k, v in stmt.items()
-                                   if k not in ("type", "line", "line_end", "paragraph", "raw_text")}
+                                   if k not in (
+                                       "type", "line", "line_end", "paragraph",
+                                       "raw_text", "normalized_text", "source_code"
+                                   )}
                         stmt_para = _source_paragraph_for_line(stmt.get("line")) or stmt.get("paragraph")
                         cursor.execute("""
                             INSERT OR REPLACE INTO statements (
                                 program_id, paragraph_name, statement_type,
-                                line_number, details_json
-                            ) VALUES (?, ?, ?, ?, ?)
+                                line_number, details_json, raw_text, normalized_text
+                            ) VALUES (?, ?, ?, ?, ?, ?, ?)
                         """, (
                             program_id,
                             stmt_para,
                             stmt.get("type"),
                             stmt.get("line"),
-                            json.dumps(details) if details else None
+                            json.dumps(details) if details else None,
+                            stmt.get("raw_text") or stmt.get("source_code"),
+                            stmt.get("normalized_text"),
                         ))
 
                     # Insert calls
@@ -803,31 +810,52 @@ class SQLiteLoader:
                     # so we never overwrite ProLeap output that's already populated.
                     if program.get("file_path"):
                         try:
-                            io_stmts = self._extract_io_statements_from_source(
+                            io_stmts = self._extract_statement_sources_from_source(
                                 program["file_path"], program.get("paragraphs", [])
                             )
                             for s in io_stmts:
-                                # Skip if a row already exists for this program/line/type
+                                details_json = json.dumps(s.get("details", {})) if s.get("details") else None
+
+                                # Enrich an existing parser row with source text/details.
                                 cursor.execute("""
-                                    SELECT 1 FROM statements
+                                    UPDATE statements
+                                    SET raw_text = COALESCE(raw_text, ?),
+                                        normalized_text = COALESCE(normalized_text, ?),
+                                        paragraph_name = COALESCE(paragraph_name, ?),
+                                        details_json = CASE
+                                            WHEN details_json IS NULL OR details_json IN ('{}', '')
+                                            THEN ?
+                                            ELSE details_json
+                                        END
                                     WHERE program_id = ? AND line_number = ? AND statement_type = ?
-                                """, (program_id, s["line_number"], s["type"]))
-                                if cursor.fetchone():
+                                """, (
+                                    s.get("raw_text"),
+                                    s.get("normalized_text"),
+                                    s.get("paragraph"),
+                                    details_json,
+                                    program_id,
+                                    s["line_number"],
+                                    s["type"],
+                                ))
+                                if cursor.rowcount:
                                     continue
+
                                 cursor.execute("""
                                     INSERT INTO statements (
                                         program_id, paragraph_name, statement_type,
-                                        line_number, details_json
-                                    ) VALUES (?, ?, ?, ?, ?)
+                                        line_number, details_json, raw_text, normalized_text
+                                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
                                 """, (
                                     program_id,
                                     s.get("paragraph"),
                                     s["type"],
                                     s["line_number"],
-                                    json.dumps(s.get("details", {})),
+                                    details_json,
+                                    s.get("raw_text"),
+                                    s.get("normalized_text"),
                                 ))
                         except Exception as _io_err:
-                            console.print(f"[yellow]  IO statement fallback failed for {program_id}: {_io_err}[/yellow]")
+                            console.print(f"[yellow]  source statement extraction failed for {program_id}: {_io_err}[/yellow]")
 
                     # Static analysis: detect bugs, dead code, naming mismatches
                     if program.get("file_path"):
@@ -1727,10 +1755,14 @@ class SQLiteLoader:
         return unique
 
     @staticmethod
-    def _extract_io_statements_from_source(file_path: str, paragraphs: List[Dict]) -> List[Dict]:
-        """Source-side fallback for READ/WRITE/OPEN/CLOSE/REWRITE/DELETE/START
-        and IF conditions. Returns rows ready for the `statements` table."""
-        import re, json
+    def _extract_statement_sources_from_source(file_path: str, paragraphs: List[Dict]) -> List[Dict]:
+        """Extract source-grounded executable statements for conversion/regeneration.
+
+        This pass is additive to parser output. It keeps raw COBOL text and a
+        normalized column-body version so downstream generators such as PMODEL
+        do not need to re-open individual source files.
+        """
+        import re
         from pathlib import Path
         src = Path(file_path)
         if not src.exists():
@@ -1749,13 +1781,13 @@ class SQLiteLoader:
 
         def _find_paragraph(line_num):
             for p in paragraphs:
-                start = p.get("line_start", 0)
-                end = p.get("line_end", 0)
+                start = p.get("line_start", 0) or p.get("start_line", 0)
+                end = p.get("line_end", 0) or p.get("end_line", 0)
                 if start and end and start <= line_num <= end:
-                    return p.get("name")
+                    return p.get("name") or p.get("paragraph_name")
             return None
 
-        # Statement patterns. Each captures the file name (or condition text).
+        # Statement patterns. Each captures the key operand when possible.
         io_patterns = [
             ("READ",     re.compile(r"^\s*READ\s+([A-Z][A-Z0-9-]*)", re.IGNORECASE)),
             ("WRITE",    re.compile(r"^\s*WRITE\s+([A-Z][A-Z0-9-]*)", re.IGNORECASE)),
@@ -1765,7 +1797,15 @@ class SQLiteLoader:
             ("OPEN",     re.compile(r"^\s*OPEN\s+(?:INPUT|OUTPUT|I-O|EXTEND)?\s*([A-Z][A-Z0-9-,\s]*)", re.IGNORECASE)),
             ("CLOSE",    re.compile(r"^\s*CLOSE\s+([A-Z][A-Z0-9-,\s]*)", re.IGNORECASE)),
         ]
+        move_pat = re.compile(r"^\s*MOVE\s+(.+?)\s+TO\s+(.+?)(?:\.|\s*$)", re.IGNORECASE)
+        display_pat = re.compile(r"^\s*DISPLAY\s+(.+?)(?:\.|\s*$)", re.IGNORECASE)
+        perform_pat = re.compile(r"^\s*PERFORM\s+(.+?)(?:\.|\s*$)", re.IGNORECASE)
+        call_pat = re.compile(r"^\s*CALL\s+(.+?)(?:\s+USING\s+(.+?))?(?:\.|\s*$)", re.IGNORECASE)
+        eval_pat = re.compile(r"^\s*EVALUATE\s+(.+?)(?:\.|\s*$)", re.IGNORECASE)
+        when_pat = re.compile(r"^\s*WHEN\s+(.+?)(?:\.|\s*$)", re.IGNORECASE)
+        arithmetic_pat = re.compile(r"^\s*(ADD|SUBTRACT|MULTIPLY|DIVIDE|COMPUTE)\s+(.+?)(?:\.|\s*$)", re.IGNORECASE)
         if_pat = re.compile(r"^\s*IF\s+(.+)$", re.IGNORECASE)
+        exit_pat = re.compile(r"^\s*(EXIT|STOP\s+RUN|GOBACK)\b", re.IGNORECASE)
 
         results = []
         in_proc = False
@@ -1782,6 +1822,17 @@ class SQLiteLoader:
 
             line_num = i + 1
             para = _find_paragraph(line_num)
+            normalized = body.strip()
+
+            def _row(stype: str, details: Dict[str, Any]) -> Dict[str, Any]:
+                return {
+                    "type": stype,
+                    "paragraph": para,
+                    "line_number": line_num,
+                    "details": details,
+                    "raw_text": raw.rstrip("\r\n"),
+                    "normalized_text": normalized,
+                }
 
             # I/O statements
             matched = False
@@ -1790,15 +1841,59 @@ class SQLiteLoader:
                 if not m:
                     continue
                 target = m.group(1).strip().split(",")[0].split()[0]
-                results.append({
-                    "type": stype,
-                    "paragraph": para,
-                    "line_number": line_num,
-                    "details": {"file": target.upper()},
-                })
+                results.append(_row(stype, {"file": target.upper()}))
                 matched = True
                 break
             if matched:
+                continue
+
+            mmove = move_pat.match(body)
+            if mmove:
+                results.append(_row("MOVE", {
+                    "source": mmove.group(1).strip(),
+                    "destination": mmove.group(2).strip(),
+                }))
+                continue
+
+            mdisplay = display_pat.match(body)
+            if mdisplay:
+                results.append(_row("DISPLAY", {"content": mdisplay.group(1).strip()}))
+                continue
+
+            mperform = perform_pat.match(body)
+            if mperform:
+                results.append(_row("PERFORM", {"target": mperform.group(1).strip()}))
+                continue
+
+            mcall = call_pat.match(body)
+            if mcall:
+                details = {"target": mcall.group(1).strip()}
+                if mcall.group(2):
+                    details["using"] = mcall.group(2).strip()
+                results.append(_row("CALL", details))
+                continue
+
+            meval = eval_pat.match(body)
+            if meval:
+                results.append(_row("EVALUATE", {"subject": meval.group(1).strip()}))
+                continue
+
+            mwhen = when_pat.match(body)
+            if mwhen:
+                results.append(_row("WHEN", {"condition": mwhen.group(1).strip()}))
+                continue
+
+            marith = arithmetic_pat.match(body)
+            if marith:
+                results.append(_row("ARITHMETIC", {
+                    "verb": marith.group(1).upper(),
+                    "expression": marith.group(2).strip(),
+                }))
+                continue
+
+            mexit = exit_pat.match(body)
+            if mexit:
+                results.append(_row("EXIT", {"verb": mexit.group(1).upper()}))
                 continue
 
             # IF condition (single-line capture; multi-line conditions get the first line)
@@ -1807,14 +1902,18 @@ class SQLiteLoader:
                 cond = mif.group(1).strip().rstrip(".")
                 # Trim trailing words that look like a statement on the same line
                 cond_short = cond[:160]
-                results.append({
-                    "type": "IF",
-                    "paragraph": para,
-                    "line_number": line_num,
-                    "details": {"condition": cond_short},
-                })
+                results.append(_row("IF", {"condition": cond_short}))
 
         return results
+
+    @staticmethod
+    def _extract_io_statements_from_source(file_path: str, paragraphs: List[Dict]) -> List[Dict]:
+        """Backward-compatible wrapper for older callers."""
+        wanted = {"READ", "WRITE", "OPEN", "CLOSE", "REWRITE", "DELETE", "START", "IF"}
+        return [
+            row for row in SQLiteLoader._extract_statement_sources_from_source(file_path, paragraphs)
+            if row.get("type") in wanted
+        ]
 
     @staticmethod
     def _detect_code_anomalies(file_path: str, program_id: str,

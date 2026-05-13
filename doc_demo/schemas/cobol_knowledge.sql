@@ -120,6 +120,8 @@ CREATE TABLE IF NOT EXISTS statements (
     statement_type TEXT NOT NULL,  -- CALL, PERFORM, IF, MOVE, READ, WRITE, EVALUATE
     line_number INTEGER,
     details_json TEXT,  -- JSON with condition, parameters, etc.
+    raw_text TEXT,      -- Original source statement text for regeneration/conversion
+    normalized_text TEXT, -- Source statement after COBOL sequence/comment cleanup
     
     FOREIGN KEY (program_id) REFERENCES programs(program_id)
 );

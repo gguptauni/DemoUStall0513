@@ -583,14 +583,20 @@ def render_sidebar():
         st.markdown('<div style="height:1px;background:#00df8f;margin:10px 0 2px;"></div>',
                     unsafe_allow_html=True)
         st.markdown('<span class="sb-section">Unisys Migration</span>', unsafe_allow_html=True)
-        st.markdown(
-            """
-            <div class="tree-file">LDL+</div>
-            <div class="tree-file">Java</div>
-            <div class="tree-file">C#</div>
-            """,
-            unsafe_allow_html=True,
-        )
+        unisys_items = [
+            ("Unisys PModel", "◇  PMODEL Generator"),
+            ("Unisys Java", "☕  Java"),
+            ("Unisys CSharp", "#  C#"),
+        ]
+        for page_name, label in unisys_items:
+            is_active = current == page_name
+            if is_active:
+                st.markdown('<div class="nav-active">', unsafe_allow_html=True)
+            if st.button(label, key=f"nav_{page_name}", use_container_width=True):
+                st.session_state.current_page = page_name
+                st.rerun()
+            if is_active:
+                st.markdown("</div>", unsafe_allow_html=True)
 
         st.markdown('<div style="height:1px;background:#00df8f;margin:8px 0;"></div>',
                     unsafe_allow_html=True)
@@ -4507,6 +4513,196 @@ def page_doc_generator():
 
     loader.close()
 
+
+# 
+# Unisys Migration: Java Demo
+# 
+
+def page_unisys_java():
+    st.header("Unisys Migration - Java")
+    st.markdown(
+        "Demo conversion for COBOL program `CBACT01C` using the existing graph, "
+        "Neo4j-enriched evidence, and LLM enrichment stored in the knowledge base."
+    )
+
+    program_id = "CBACT01C"
+    use_llm = st.checkbox("Use Gemini for Java generation", value=True)
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        generate = st.button("Generate Java for CBACT01C", type="primary", use_container_width=True)
+    with col_b:
+        if st.button("Clear Java Result", use_container_width=True):
+            st.session_state.pop("unisys_java_cbact01c", None)
+            st.rerun()
+
+    if generate:
+        try:
+            from java_migration_generator import generate_java_for_program
+
+            loader = db_connect()
+            with st.spinner("Building graph context and generating Java demo code..."):
+                result = generate_java_for_program(
+                    loader=loader,
+                    program_id=program_id,
+                    project_root=PROJECT_ROOT,
+                    use_llm=use_llm,
+                )
+            loader.close()
+            st.session_state["unisys_java_cbact01c"] = result
+        except Exception as exc:
+            try:
+                (PROJECT_ROOT / "streamlit_error.log").write_text(
+                    traceback.format_exc(),
+                    encoding="utf-8",
+                )
+            except Exception:
+                pass
+            st.error(f"Java migration generation failed: {exc}")
+            return
+
+    result = st.session_state.get("unisys_java_cbact01c") or {}
+    if not result:
+        st.info("Click Generate Java for CBACT01C to build the demo conversion.")
+        return
+
+    context = result.get("context") or {}
+    graph = context.get("graph") or {}
+    program = context.get("program") or {}
+    java_code = result.get("java_code") or ""
+
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Program", program.get("program_id") or program_id)
+    m2.metric("Paragraphs", len(graph.get("paragraphs") or []))
+    m3.metric("Business Rules", len(graph.get("business_rules") or []))
+    m4.metric("LLM Used", "Yes" if result.get("used_llm") else "No")
+
+    tab_code, tab_context = st.tabs(["Generated Java", "Graph Evidence"])
+    with tab_code:
+        st.code(java_code, language="java")
+        st.download_button(
+            "Download Java",
+            data=java_code.encode("utf-8"),
+            file_name="Cbact01cMigration.java",
+            mime="text/x-java-source",
+            use_container_width=True,
+        )
+    with tab_context:
+        st.caption(context.get("evidence_source", "Knowledge graph evidence"))
+        st.json(
+            {
+                "program": program,
+                "calls": graph.get("calls", []),
+                "called_by": graph.get("called_by", []),
+                "files": graph.get("files", []),
+                "business_rules": graph.get("business_rules", [])[:10],
+                "file_operations": graph.get("file_operations", [])[:20],
+            }
+        )
+
+
+def page_unisys_pmodel():
+    st.header("Unisys Migration - PMODEL Generator")
+    st.markdown(
+        "Generate an AB Suite Public Model XML file from the SQLite knowledge graph. "
+        "This uses parsed program, data, paragraph, call, and statement facts instead of a hard-coded COBOL file path."
+    )
+
+    try:
+        loader = db_connect()
+        programs = loader.get_all_programs()
+        loader.close()
+    except Exception:
+        programs = [{"program_id": "CBACT01C"}]
+
+    program_ids = [p["program_id"] for p in programs if p.get("program_id")]
+    default_idx = program_ids.index("CBACT01C") if "CBACT01C" in program_ids else 0
+    program_id = st.selectbox("Select Program", program_ids, index=default_idx)
+
+    col_a, col_b, col_c = st.columns(3)
+    with col_a:
+        generate = st.button(f"Generate PMODEL for {program_id}", type="primary", use_container_width=True)
+    with col_b:
+        if st.button("Clear PMODEL Result", use_container_width=True):
+            st.session_state.pop("unisys_pmodel_result", None)
+            st.rerun()
+
+    if generate:
+        try:
+            from pmodel_migration_generator import SQLitePModelGenerator
+
+            output_dir = PROJECT_ROOT / "generated_pmodels"
+            output_path = output_dir / f"{program_id}.pmodel"
+            with st.spinner(f"Generating PMODEL for {program_id} from SQLite graph facts..."):
+                result = SQLitePModelGenerator(_db_path()).generate_program(program_id, str(output_path))
+            st.session_state["unisys_pmodel_result"] = {
+                "program_id": result.program_id,
+                "output_path": result.output_path,
+                "xml_text": result.xml_text,
+                "data_objects": result.data_object_count,
+                "methods": result.method_count,
+                "statements": result.statement_count,
+            }
+        except Exception as exc:
+            try:
+                (PROJECT_ROOT / "streamlit_error.log").write_text(
+                    traceback.format_exc(),
+                    encoding="utf-8",
+                )
+            except Exception:
+                pass
+            st.error(f"PMODEL generation failed: {exc}")
+            return
+
+    result = st.session_state.get("unisys_pmodel_result") or {}
+    if not result:
+        st.info("Click Generate PMODEL to build a database-backed AB Suite Public Model file.")
+        return
+
+    xml_text = result.get("xml_text") or ""
+    output_path = result.get("output_path") or ""
+
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Program", result.get("program_id") or program_id)
+    m2.metric("Objects", result.get("data_objects", 0))
+    m3.metric("Methods", result.get("methods", 0))
+    m4.metric("Statements", result.get("statements", 0))
+
+    st.success("PMODEL generated from SQLite and saved locally.")
+    if output_path:
+        st.caption(f"Saved file: `{output_path}`")
+
+    tab_xml, tab_notes = st.tabs(["Generated PMODEL", "Validation Notes"])
+    with tab_xml:
+        st.code(xml_text[:60000], language="xml")
+        if len(xml_text) > 60000:
+            st.caption("Preview truncated for display. Download contains the full PMODEL.")
+        st.download_button(
+            "Download PMODEL",
+            data=xml_text.encode("utf-16"),
+            file_name=f"{result.get('program_id') or program_id}.pmodel",
+            mime="application/xml",
+            use_container_width=True,
+        )
+    with tab_notes:
+        st.markdown(
+            """
+**Validation status**
+
+The generator creates a well-formed `PublicInterchangeFile` PMODEL document. For import readiness, validate the downloaded file with the bundled Unisys `PModelValidator.exe` or the Public Interchange XSDs.
+
+**Generation source**
+
+- SQLite `programs`, `data_items`, `file_records`, `paragraphs`, `statements`, `files`, `copybook_usage`, and `program_calls`
+- No LLM required for this deterministic PMODEL generation path
+- New elements use `ID_NewElement*` substitution identifiers for AB Suite import
+            """
+        )
+
+
+def page_unisys_placeholder(name: str):
+    st.header(f"Unisys Migration - {name}")
+    st.info("Demo page placeholder. Java conversion is implemented first for CBACT01C.")
+
 # 
 # Main Layout
 # 
@@ -4567,3 +4763,7 @@ elif _page == "Migration":         page_migration()
 elif _page == "Rules":             page_rules()
 elif _page == "Search":            page_search(repo_path)
 elif _page == "File Viewer":       page_file_viewer()
+elif _page == "Unisys Java":       page_unisys_java()
+elif _page == "Unisys PModel":     page_unisys_pmodel()
+elif _page == "Unisys LDL+":       page_unisys_pmodel()
+elif _page == "Unisys CSharp":     page_unisys_placeholder("C#")
