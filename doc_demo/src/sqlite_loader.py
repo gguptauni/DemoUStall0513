@@ -1805,6 +1805,12 @@ class SQLiteLoader:
         when_pat = re.compile(r"^\s*WHEN\s+(.+?)(?:\.|\s*$)", re.IGNORECASE)
         arithmetic_pat = re.compile(r"^\s*(ADD|SUBTRACT|MULTIPLY|DIVIDE|COMPUTE)\s+(.+?)(?:\.|\s*$)", re.IGNORECASE)
         if_pat = re.compile(r"^\s*IF\s+(.+)$", re.IGNORECASE)
+        else_pat = re.compile(r"^\s*ELSE\b", re.IGNORECASE)
+        end_if_pat = re.compile(r"^\s*END-IF\b", re.IGNORECASE)
+        end_perform_pat = re.compile(r"^\s*END-PERFORM\b", re.IGNORECASE)
+        end_evaluate_pat = re.compile(r"^\s*END-EVALUATE\b", re.IGNORECASE)
+        continue_pat = re.compile(r"^\s*CONTINUE\b", re.IGNORECASE)
+        initialize_pat = re.compile(r"^\s*INITIALIZE\s+(.+?)(?:\.|\s*$)", re.IGNORECASE)
         exit_pat = re.compile(r"^\s*(EXIT|STOP\s+RUN|GOBACK)\b", re.IGNORECASE)
 
         results = []
@@ -1903,6 +1909,31 @@ class SQLiteLoader:
                 # Trim trailing words that look like a statement on the same line
                 cond_short = cond[:160]
                 results.append(_row("IF", {"condition": cond_short}))
+                continue
+
+            if else_pat.match(body):
+                results.append(_row("ELSE", {}))
+                continue
+
+            if end_if_pat.match(body):
+                results.append(_row("END-IF", {}))
+                continue
+
+            if end_perform_pat.match(body):
+                results.append(_row("END-PERFORM", {}))
+                continue
+
+            if end_evaluate_pat.match(body):
+                results.append(_row("END-EVALUATE", {}))
+                continue
+
+            if continue_pat.match(body):
+                results.append(_row("CONTINUE", {}))
+                continue
+
+            minitialize = initialize_pat.match(body)
+            if minitialize:
+                results.append(_row("INITIALIZE", {"target": minitialize.group(1).strip()}))
 
         return results
 

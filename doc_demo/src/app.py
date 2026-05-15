@@ -586,6 +586,7 @@ def render_sidebar():
         unisys_items = [
             ("Unisys PModel", "◇  PMODEL Generator"),
             ("Unisys Java", "☕  Java"),
+            ("Unisys MCP COBOL", "🛠  MCP COBOL"),
             ("Unisys CSharp", "#  C#"),
         ]
         for page_name, label in unisys_items:
@@ -4699,6 +4700,127 @@ The generator creates a well-formed `PublicInterchangeFile` PMODEL document. For
         )
 
 
+def page_unisys_mcp():
+    st.header("Unisys Migration - MCP COBOL")
+    st.markdown(
+        "Demo conversion of COBOL program `CBACT01C` into Unisys MCP COBOL format. "
+        "This page uses the same CBACT01C source file and produces a first-pass review package."
+    )
+
+    use_llm = st.checkbox("Use Gemini for MCP conversion", value=False)
+    col_a, col_b = st.columns(2)
+    with col_a:
+        generate = st.button("Generate MCP COBOL for CBACT01C", type="primary", use_container_width=True)
+    with col_b:
+        if st.button("Clear MCP Result", use_container_width=True):
+            st.session_state.pop("unisys_mcp_cbact01c", None)
+            st.rerun()
+
+    if generate:
+        try:
+            from mcp_migration_generator import generate_mcp_package
+
+            loader = db_connect()
+            with st.spinner("Generating MCP COBOL conversion for CBACT01C and copybooks..."):
+                result = generate_mcp_package(
+                    loader=loader,
+                    program_id="CBACT01C",
+                    project_root=PROJECT_ROOT,
+                    use_llm=use_llm,
+                )
+            loader.close()
+            st.session_state["unisys_mcp_cbact01c"] = result
+        except Exception as exc:
+            try:
+                (PROJECT_ROOT / "streamlit_error.log").write_text(
+                    traceback.format_exc(),
+                    encoding="utf-8",
+                )
+            except Exception:
+                pass
+            st.error(f"MCP COBOL generation failed: {exc}")
+            return
+
+    result = st.session_state.get("unisys_mcp_cbact01c") or {}
+    if not result:
+        st.info("Click Generate MCP COBOL for CBACT01C to build the demo conversion.")
+        return
+
+    copybooks = result.get("copybooks") or []
+    m1, m2, m3 = st.columns(3)
+    m1.metric("Program", result.get("program_id") or "CBACT01C")
+    m2.metric("LLM Used", "Yes" if result.get("used_llm") else "No")
+    m3.metric("Copybooks Found", len(copybooks))
+
+    mcp_code = result.get("mcp_code") or ""
+    
+    # Create tabs for Program, Copybooks, and Conversion Notes
+    tab_code, tab_copybooks, tab_context = st.tabs(["Generated MCP COBOL", "Copybooks", "Conversion Notes"])
+    
+    with tab_code:
+        st.code(mcp_code, language="cobol")
+        st.download_button(
+            "Download Program Only",
+            data=mcp_code.encode("utf-8"),
+            file_name="CBACT01C.c85_m",
+            mime="text/plain",
+            use_container_width=True,
+        )
+    
+    with tab_copybooks:
+        if not copybooks:
+            st.info("No copybooks referenced by this program.")
+        else:
+            st.write(f"**{len(copybooks)} copybook(s) generated:**")
+            
+            # Display each copybook with individual download
+            for cb_name, cb_code in copybooks:
+                with st.expander(f"📄 {cb_name}.c85_m"):
+                    st.code(cb_code, language="cobol")
+                    st.download_button(
+                        f"Download {cb_name}",
+                        data=cb_code.encode("utf-8"),
+                        file_name=f"{cb_name}.c85_m",
+                        mime="text/plain",
+                        key=f"dl_cb_{cb_name}",
+                        use_container_width=True,
+                    )
+            
+            # Create ZIP file with program and all copybooks
+            import io
+            import zipfile
+            
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+                # Add program file
+                zf.writestr("CBACT01C.c85_m", mcp_code.encode("utf-8"))
+                # Add all copybooks
+                for cb_name, cb_code in copybooks:
+                    zf.writestr(f"{cb_name}.c85_m", cb_code.encode("utf-8"))
+            
+            zip_buffer.seek(0)
+            st.download_button(
+                "Download All as ZIP",
+                data=zip_buffer.getvalue(),
+                file_name="CBACT01C_MCP_Package.zip",
+                mime="application/zip",
+                use_container_width=True,
+                type="primary",
+            )
+    
+    with tab_context:
+        st.markdown(
+            "**MCP COBOL Conversion Guide**\n\n"
+            "- File extension: `c85_m` (Unisys MCP COBOL format)\n"
+            "- The fallback path preserves the original COBOL structure as a first-pass review artifact.\n"
+            "- All referenced copybooks are automatically extracted and converted.\n"
+            "- Download individual copybooks or the complete package as ZIP.\n"
+            "- Review the generated output for Unisys MCP-specific compliance.\n"
+            "- If you encounter corruption errors, verify the c85_m extension is used.\n"
+            "- This page is a first-step conversion that is suitable for incremental refinement."
+        )
+
+
 def page_unisys_placeholder(name: str):
     st.header(f"Unisys Migration - {name}")
     st.info("Demo page placeholder. Java conversion is implemented first for CBACT01C.")
@@ -4765,5 +4887,6 @@ elif _page == "Search":            page_search(repo_path)
 elif _page == "File Viewer":       page_file_viewer()
 elif _page == "Unisys Java":       page_unisys_java()
 elif _page == "Unisys PModel":     page_unisys_pmodel()
+elif _page == "Unisys MCP COBOL":  page_unisys_mcp()
 elif _page == "Unisys LDL+":       page_unisys_pmodel()
 elif _page == "Unisys CSharp":     page_unisys_placeholder("C#")

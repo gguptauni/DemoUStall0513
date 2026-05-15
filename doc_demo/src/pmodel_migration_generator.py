@@ -305,10 +305,15 @@ class SQLitePModelGenerator:
         method.set("IsFinal", "No")
         method.set("Language", "LDL")
         logic = etree.SubElement(method, "Logic")
-        logic.text = self._statements_to_ldl(statements)
+        logic.text = self._statements_to_ldlplus(statements)
         return method
 
-    def _statements_to_ldl(self, statements: Iterable[Dict[str, Any]]) -> str:
+    def _statements_to_ldlplus(self, statements: Iterable[Dict[str, Any]]) -> str:
+        statements = list(statements)
+        has_structured_blocks = any(
+            (statement.get("statement_type") or "").upper() in {"ELSE", "END-IF", "END-PERFORM", "END-EVALUATE"}
+            for statement in statements
+        )
         lines: List[str] = []
         for statement in statements:
             stype = (statement.get("statement_type") or "").upper()
@@ -317,47 +322,155 @@ class SQLitePModelGenerator:
             line_no = statement.get("line_number")
 
             if stype == "MOVE":
-                src = details.get("source")
-                dst = details.get("destination")
+                src, dst = self._move_operands(details, normalized)
                 if src and dst:
-                    lines.append(f"Move {self._ldl_name(src)} {self._ldl_name(dst)}")
+                    lines.append(self._assignment_or_move(src, dst))
                 else:
-                    lines.append(self._comment(normalized, line_no))
+                    lines.append(self._todo("Review COBOL MOVE manually", normalized, line_no))
             elif stype == "DISPLAY":
                 content = details.get("content") or normalized.removeprefix("DISPLAY").strip().rstrip(".")
-                lines.append(f"Display {content}" if content else self._comment(normalized, line_no))
-            elif stype == "PERFORM":
-                target = (details.get("target") or "").strip().rstrip(".")
-                if target and not target.upper().startswith("UNTIL "):
-                    lines.append(f"Recall {self._clean_name(target)}")
+                if content:
+                    lines.append(f"Message Attention {self._display_expression_to_ldl(content)}")
                 else:
-                    lines.append(self._comment(normalized, line_no))
+                    lines.append(self._todo("Review COBOL DISPLAY manually", normalized, line_no))
+            elif stype == "PERFORM":
+                target = (details.get("target") or self._perform_target(normalized)).strip().rstrip(".")
+                if target.upper().startswith("UNTIL "):
+                    condition = target[6:].strip()
+                    if has_structured_blocks:
+                        lines.append(f"Loop While ({self._negated_condition_to_ldl(condition)})")
+                    else:
+                        lines.extend(
+                            [
+                                "Loop",
+                                f"If {self._condition_to_ldl(condition)}",
+                                "Break",
+                                "End",
+                                self._todo("Rebuild PERFORM UNTIL body from control-flow analysis", normalized, line_no),
+                                "End",
+                            ]
+                        )
+                elif target:
+                    lines.append(f"{self._clean_name(target)}()")
+                else:
+                    lines.append(self._todo("Review COBOL PERFORM manually", normalized, line_no))
             elif stype == "IF":
-                condition = details.get("condition")
+                condition = details.get("condition") or self._if_condition(normalized)
                 if condition:
                     lines.append(f"DoWhen ({self._condition_to_ldl(condition)})")
-                    lines.append("End")
+                    if not has_structured_blocks:
+                        lines.append(self._todo("Rebuild IF body from control-flow analysis", normalized, line_no))
+                        lines.append("End")
                 else:
-                    lines.append(self._comment(normalized, line_no))
+                    lines.append(self._todo("Review COBOL IF manually", normalized, line_no))
+            elif stype == "ELSE":
+                lines.append("Else")
+            elif stype in {"END-IF", "END-PERFORM"}:
+                lines.append("End")
+            elif stype == "EVALUATE":
+                subject = details.get("subject")
+                lines.append(f"BeginCase {self._expression_to_ldl(subject)}" if subject else self._todo("Review COBOL EVALUATE manually", normalized, line_no))
+            elif stype == "WHEN":
+                condition = details.get("condition")
+                if condition and condition.upper() == "OTHER":
+                    lines.append("Otherwise")
+                elif condition:
+                    lines.append(f"Case {self._expression_to_ldl(condition)}")
+                else:
+                    lines.append(self._todo("Review COBOL WHEN manually", normalized, line_no))
+            elif stype == "END-EVALUATE":
+                lines.append("EndCase")
+            elif stype == "CONTINUE":
+                lines.append("Continue")
+            elif stype == "INITIALIZE":
+                target = details.get("target") or normalized.removeprefix("INITIALIZE").strip().rstrip(".")
+                lines.append(self._todo("Map COBOL INITIALIZE to AB Suite initialization", target, line_no))
             elif stype in {"READ", "WRITE", "OPEN", "CLOSE", "REWRITE", "DELETE", "START"}:
                 target = details.get("file") or ""
-                lines.append(self._comment(f"{stype} {target}".strip(), line_no))
+                lines.append(self._todo(f"Map COBOL {stype} to AB Suite data access", target or normalized, line_no))
             elif stype == "CALL":
                 target = details.get("target")
                 if target and target.strip("'\"").upper() != "UNKNOWN":
                     clean_target = target.strip("'\"")
-                    lines.append(f"Recall {self._clean_name(clean_target)}")
+                    lines.append(self._todo("Map external COBOL CALL to AB Suite integration", clean_target, line_no))
                 else:
-                    lines.append(self._comment(normalized or "CALL UNKNOWN", line_no))
+                    lines.append(self._todo("Review external COBOL CALL manually", normalized or "CALL UNKNOWN", line_no))
             elif stype == "ARITHMETIC":
-                lines.append(self._comment(normalized, line_no))
+                arithmetic = self._arithmetic_to_ldl(normalized)
+                lines.append(arithmetic if arithmetic else self._todo("Review COBOL arithmetic manually", normalized, line_no))
             elif stype == "EXIT":
                 verb = (details.get("verb") or normalized).upper()
-                lines.append("Exit" if "EXIT" in verb or "GOBACK" in verb or "STOP" in verb else self._comment(normalized, line_no))
+                lines.append("Exit" if "EXIT" in verb or "GOBACK" in verb or "STOP" in verb else self._todo("Review COBOL exit manually", normalized, line_no))
             elif normalized:
-                lines.append(self._comment(normalized, line_no))
+                lines.append(self._todo("Review COBOL statement manually", normalized, line_no))
 
         return "\n".join(lines) if lines else ": No executable statements captured in SQLite"
+
+    def _assignment_or_move(self, source: str, destination: str) -> str:
+        src = self._expression_to_ldl(source)
+        dst = self._expression_to_ldl(destination)
+        if self._is_group_like(source) or self._is_group_like(destination):
+            return f"Move {src} {dst}"
+        return f"{dst} := {src}"
+
+    @staticmethod
+    def _move_operands(details: Dict[str, Any], normalized: str) -> Tuple[str, str]:
+        src = details.get("source")
+        dst = details.get("destination")
+        if src and dst:
+            return str(src), str(dst)
+        match = re.match(r"^\s*MOVE\s+(.+?)\s+TO\s+(.+?)\.?\s*$", normalized, flags=re.IGNORECASE)
+        if not match:
+            return "", ""
+        return match.group(1).strip(), match.group(2).strip()
+
+    @staticmethod
+    def _perform_target(normalized: str) -> str:
+        match = re.match(r"^\s*PERFORM\s+(.+?)\.?\s*$", normalized, flags=re.IGNORECASE)
+        return match.group(1).strip() if match else ""
+
+    @staticmethod
+    def _if_condition(normalized: str) -> str:
+        match = re.match(r"^\s*IF\s+(.+?)\.?\s*$", normalized, flags=re.IGNORECASE)
+        return match.group(1).strip() if match else ""
+
+    def _arithmetic_to_ldl(self, normalized: str) -> str:
+        text = normalized.strip().rstrip(".")
+        patterns = [
+            (
+                r"^ADD\s+(.+?)\s+TO\s+(.+?)\s+GIVING\s+(.+)$",
+                lambda m: f"{self._expression_to_ldl(m.group(3))} := {self._expression_to_ldl(m.group(2))} + {self._expression_to_ldl(m.group(1))}",
+            ),
+            (
+                r"^ADD\s+(.+?)\s+TO\s+(.+)$",
+                lambda m: f"{self._expression_to_ldl(m.group(2))} := {self._expression_to_ldl(m.group(2))} + {self._expression_to_ldl(m.group(1))}",
+            ),
+            (
+                r"^SUBTRACT\s+(.+?)\s+FROM\s+(.+?)\s+GIVING\s+(.+)$",
+                lambda m: f"{self._expression_to_ldl(m.group(3))} := {self._expression_to_ldl(m.group(2))} - {self._expression_to_ldl(m.group(1))}",
+            ),
+            (
+                r"^SUBTRACT\s+(.+?)\s+FROM\s+(.+)$",
+                lambda m: f"{self._expression_to_ldl(m.group(2))} := {self._expression_to_ldl(m.group(2))} - {self._expression_to_ldl(m.group(1))}",
+            ),
+            (
+                r"^MULTIPLY\s+(.+?)\s+BY\s+(.+?)\s+GIVING\s+(.+)$",
+                lambda m: f"{self._expression_to_ldl(m.group(3))} := {self._expression_to_ldl(m.group(1))} * {self._expression_to_ldl(m.group(2))}",
+            ),
+            (
+                r"^DIVIDE\s+(.+?)\s+BY\s+(.+?)\s+GIVING\s+(.+)$",
+                lambda m: f"{self._expression_to_ldl(m.group(3))} := {self._expression_to_ldl(m.group(1))} / {self._expression_to_ldl(m.group(2))}",
+            ),
+            (
+                r"^COMPUTE\s+(.+?)\s*=\s*(.+)$",
+                lambda m: f"{self._expression_to_ldl(m.group(1))} := {self._expression_to_ldl(m.group(2))}",
+            ),
+        ]
+        for pattern, renderer in patterns:
+            match = re.match(pattern, text, flags=re.IGNORECASE)
+            if match:
+                return renderer(match)
+        return ""
 
     @staticmethod
     def _json_dict(value: Optional[str]) -> Dict[str, Any]:
@@ -468,21 +581,65 @@ class SQLitePModelGenerator:
             return "GLB.SPACES"
         return self._clean_name(value)
 
+    def _expression_to_ldl(self, value: str) -> str:
+        expression = str(value).strip().rstrip(".")
+        expression = re.sub(r"\bZEROES?\b|\bZEROS\b", "GLB.ZEROS", expression, flags=re.IGNORECASE)
+        expression = re.sub(r"\bSPACES?\b", "GLB.SPACES", expression, flags=re.IGNORECASE)
+        expression = re.sub(r"(?<=[A-Za-z0-9_])-(?=[A-Za-z0-9_])", "_", expression)
+        expression = re.sub(r"\b([A-Za-z][A-Za-z0-9_]*)\(([^()]*)\)", r"\1[\2]", expression)
+        return expression
+
+    def _display_expression_to_ldl(self, value: str) -> str:
+        expression = self._expression_to_ldl(value)
+        return re.sub(
+            r"((?:'[^']*'|\"[^\"]*\"))\s+([A-Za-z][A-Za-z0-9_\[\], ]*)$",
+            r"\1 & \2",
+            expression,
+        )
+
+    @staticmethod
+    def _is_group_like(value: str) -> bool:
+        text = str(value).upper()
+        return any(token in text for token in ("-REC", "-RECORD", " RECORD", " GROUP"))
+
     def _condition_to_ldl(self, value: str) -> str:
         condition = str(value).strip().rstrip(".")
         condition = re.sub(r"\bEQUAL\s+TO\b", "=", condition, flags=re.IGNORECASE)
-        condition = re.sub(r"\bNOT\s+=\b", "<>", condition, flags=re.IGNORECASE)
+        condition = re.sub(r"\bNOT\s+EQUAL\s+TO\b", "<>", condition, flags=re.IGNORECASE)
+        condition = re.sub(r"\bNOT\s*=", "<>", condition, flags=re.IGNORECASE)
         condition = re.sub(r"\bGREATER\s+THAN\b", ">", condition, flags=re.IGNORECASE)
         condition = re.sub(r"\bLESS\s+THAN\b", "<", condition, flags=re.IGNORECASE)
         condition = re.sub(r"\bZEROS?\b|\bZEROES\b", "GLB.ZEROS", condition, flags=re.IGNORECASE)
         condition = re.sub(r"\bSPACES?\b", "GLB.SPACES", condition, flags=re.IGNORECASE)
         condition = re.sub(r"(?<=[A-Za-z0-9_])-(?=[A-Za-z0-9_])", "_", condition)
+        condition = re.sub(r"\b([A-Za-z][A-Za-z0-9_]*)\(([^()]*)\)", r"\1[\2]", condition)
         return condition
+
+    def _negated_condition_to_ldl(self, value: str) -> str:
+        condition = self._condition_to_ldl(value)
+        replacements = [
+            (" <> ", " = "),
+            (" <= ", " > "),
+            (" >= ", " < "),
+            (" = ", " <> "),
+            (" < ", " >= "),
+            (" > ", " <= "),
+        ]
+        for old, new in replacements:
+            if old in condition:
+                return condition.replace(old, new, 1)
+        return f"NOT ({condition})"
 
     @staticmethod
     def _comment(text: str, line_no: Optional[int]) -> str:
         prefix = f": line {line_no}: " if line_no else ": "
         return prefix + (text or "statement not captured")
+
+    def _todo(self, action: str, detail: str, line_no: Optional[int]) -> str:
+        payload = f"TODO {action}"
+        if detail:
+            payload += f" ({detail})"
+        return self._comment(payload, line_no)
 
     @staticmethod
     def _dedupe_fields(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
