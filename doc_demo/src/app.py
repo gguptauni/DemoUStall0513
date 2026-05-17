@@ -32,6 +32,7 @@ from orchestrator import run_pipeline
 from sqlite_loader import SQLiteLoader
 from doc_agent_pipeline import run_doc_pipeline
 from context_engine import build_context_package
+from observability import observe_doc_generation
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -4352,14 +4353,15 @@ def page_doc_generator():
 
                 # Run the full agent pipeline — saves to DB internally
                 try:
-                    doc_text = run_doc_pipeline(
-                        mode,
-                        subject,
-                        context,
-                        db_path,
-                        context_metadata=context_meta,
-                        coverage_ledger=coverage_ledger,
-                    )
+                    with observe_doc_generation(mode, subject):
+                        doc_text = run_doc_pipeline(
+                            mode,
+                            subject,
+                            context,
+                            db_path,
+                            context_metadata=context_meta,
+                            coverage_ledger=coverage_ledger,
+                        )
                 except Exception as exc:
                     try:
                         (PROJECT_ROOT / "streamlit_error.log").write_text(

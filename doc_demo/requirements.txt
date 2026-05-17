@@ -29,3 +29,6 @@ pandas
 plotly
 pyvis>=0.3.2          # Interactive network graphs
 networkx>=3.0         # Graph analysis for call graph
+opentelemetry-api>=1.36.0
+opentelemetry-sdk>=1.36.0
+opentelemetry-exporter-otlp-proto-grpc>=1.36.0
