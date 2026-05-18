@@ -67,6 +67,52 @@ doc_generation_duration = meter.create_histogram(
     unit="s",
     description="Duration of document generation attempts.",
 )
+java_generation_counter = meter.create_counter(
+    "java_generation_runs",
+    description="Number of Java generation attempts.",
+)
+java_generation_duration = meter.create_histogram(
+    "java_generation_duration_seconds",
+    unit="s",
+    description="Duration of Java generation attempts.",
+)
+java_generation_source_lines = meter.create_histogram(
+    "java_generation_source_lines",
+    description="COBOL source lines used for Java generation.",
+)
+java_generation_evidence_facts = meter.create_histogram(
+    "java_generation_evidence_facts",
+    description="Structured facts used as Java generation evidence.",
+)
+java_generation_output_lines = meter.create_histogram(
+    "java_generation_output_lines",
+    description="Non-empty Java lines generated.",
+)
+java_generation_methods = meter.create_histogram(
+    "java_generation_methods",
+    description="Java methods generated.",
+)
+java_generation_types = meter.create_histogram(
+    "java_generation_types",
+    description="Java top-level or nested types generated.",
+)
+java_generation_llm_duration = meter.create_histogram(
+    "java_generation_llm_duration_seconds",
+    unit="s",
+    description="Duration of Gemini calls during Java generation.",
+)
+java_generation_prompt_tokens = meter.create_histogram(
+    "java_generation_prompt_tokens",
+    description="Prompt tokens sent to Gemini during Java generation.",
+)
+java_generation_output_tokens = meter.create_histogram(
+    "java_generation_output_tokens",
+    description="Output tokens returned by Gemini during Java generation.",
+)
+java_generation_total_tokens = meter.create_histogram(
+    "java_generation_total_tokens",
+    description="Total tokens used by Gemini during Java generation.",
+)
 
 
 @contextmanager
@@ -88,3 +134,39 @@ def observe_doc_generation(mode: str, subject: str) -> Iterator[None]:
             logger.info("doc_generation_completed mode=%s subject=%s", mode, subject)
         finally:
             doc_generation_duration.record(time.perf_counter() - start, attributes)
+
+
+@contextmanager
+def observe_java_generation(program_id: str, use_llm: bool) -> Iterator[dict]:
+    start = time.perf_counter()
+    attributes = {"program.id": program_id, "llm.used": str(use_llm).lower()}
+    measurements: dict[str, int] = {}
+    java_generation_counter.add(1, attributes)
+
+    with tracer.start_as_current_span("java_generation", attributes=attributes) as span:
+        try:
+            logger.info("java_generation_started program_id=%s use_llm=%s", program_id, use_llm)
+            yield measurements
+        except Exception as exc:
+            span.record_exception(exc)
+            span.set_status(trace.Status(trace.StatusCode.ERROR, str(exc)))
+            logger.exception("java_generation_failed program_id=%s use_llm=%s", program_id, use_llm)
+            raise
+        else:
+            logger.info("java_generation_completed program_id=%s use_llm=%s", program_id, use_llm)
+        finally:
+            java_generation_duration.record(time.perf_counter() - start, attributes)
+            if measurements:
+                java_generation_source_lines.record(measurements.get("source_lines", 0), attributes)
+                java_generation_evidence_facts.record(measurements.get("evidence_facts", 0), attributes)
+                java_generation_output_lines.record(measurements.get("output_lines", 0), attributes)
+                java_generation_methods.record(measurements.get("methods", 0), attributes)
+                java_generation_types.record(measurements.get("types", 0), attributes)
+                if measurements.get("llm_duration_seconds") is not None:
+                    java_generation_llm_duration.record(measurements["llm_duration_seconds"], attributes)
+                if measurements.get("prompt_tokens") is not None:
+                    java_generation_prompt_tokens.record(measurements["prompt_tokens"], attributes)
+                if measurements.get("output_tokens") is not None:
+                    java_generation_output_tokens.record(measurements["output_tokens"], attributes)
+                if measurements.get("total_tokens") is not None:
+                    java_generation_total_tokens.record(measurements["total_tokens"], attributes)

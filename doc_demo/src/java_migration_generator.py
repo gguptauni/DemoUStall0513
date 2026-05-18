@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 from pathlib import Path
 from typing import Any, Dict
 
@@ -179,7 +180,12 @@ def generate_java_for_program(loader, program_id: str, project_root: str | Path,
     context = build_java_migration_context(loader, program_id, project_root)
 
     if not use_llm or not os.environ.get("GEMINI_API_KEY"):
-        return {"java_code": _fallback_java(context), "context": context, "used_llm": False}
+        return {
+            "java_code": _fallback_java(context),
+            "context": context,
+            "used_llm": False,
+            "llm_metrics": {},
+        }
 
     model_name = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
     llm = ChatGoogleGenerativeAI(
@@ -206,8 +212,35 @@ Requirements:
 CONTEXT JSON:
 {json.dumps(context, indent=2, default=str)}
 """
+    llm_start = time.perf_counter()
     response = llm.invoke([
         SystemMessage(content="You are a senior Java modernization engineer. Return Java code only."),
         HumanMessage(content=prompt),
     ])
-    return {"java_code": _extract_code(response.content), "context": context, "used_llm": True}
+    llm_duration_seconds = time.perf_counter() - llm_start
+
+    usage = getattr(response, "usage_metadata", None) or {}
+    response_metadata = getattr(response, "response_metadata", None) or {}
+    token_usage = response_metadata.get("token_usage") or response_metadata.get("usage_metadata") or {}
+
+    def _metric(*keys: str) -> int | None:
+        for source in (usage, token_usage):
+            for key in keys:
+                value = source.get(key)
+                if value is not None:
+                    return int(value)
+        return None
+
+    llm_metrics = {
+        "llm_duration_seconds": llm_duration_seconds,
+        "prompt_tokens": _metric("input_tokens", "prompt_token_count", "prompt_tokens"),
+        "output_tokens": _metric("output_tokens", "candidates_token_count", "completion_tokens"),
+        "total_tokens": _metric("total_tokens", "total_token_count"),
+        "model_name": response_metadata.get("model_name") or model_name,
+    }
+    return {
+        "java_code": _extract_code(response.content),
+        "context": context,
+        "used_llm": True,
+        "llm_metrics": llm_metrics,
+    }

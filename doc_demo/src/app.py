@@ -22,6 +22,8 @@ import pandas as pd
 import tempfile
 import io
 import traceback
+import time
+import re
 
 # Ensure src/ is on path when launched as `streamlit run src/app.py`
 sys.path.insert(0, str(Path(__file__).parent))
@@ -32,7 +34,7 @@ from orchestrator import run_pipeline
 from sqlite_loader import SQLiteLoader
 from doc_agent_pipeline import run_doc_pipeline
 from context_engine import build_context_package
-from observability import observe_doc_generation
+from observability import observe_doc_generation, observe_java_generation
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -4543,13 +4545,52 @@ def page_unisys_java():
             from java_migration_generator import generate_java_for_program
 
             loader = db_connect()
+            generation_start = time.perf_counter()
             with st.spinner("Building graph context and generating Java demo code..."):
-                result = generate_java_for_program(
-                    loader=loader,
-                    program_id=program_id,
-                    project_root=PROJECT_ROOT,
-                    use_llm=use_llm,
-                )
+                with observe_java_generation(program_id, use_llm) as measurements:
+                    result = generate_java_for_program(
+                        loader=loader,
+                        program_id=program_id,
+                        project_root=PROJECT_ROOT,
+                        use_llm=use_llm,
+                    )
+                    java_context = result.get("context") or {}
+                    java_graph = java_context.get("graph") or {}
+                    generated_java = result.get("java_code") or ""
+                    measurements["source_lines"] = java_context.get("source_line_count", 0)
+                    measurements["evidence_facts"] = sum(
+                        len(java_graph.get(key) or [])
+                        for key in (
+                            "paragraphs",
+                            "business_rules",
+                            "data_items",
+                            "data_movements",
+                            "file_operations",
+                            "calls",
+                            "called_by",
+                            "files",
+                        )
+                    )
+                    measurements["output_lines"] = len(
+                        [line for line in generated_java.splitlines() if line.strip()]
+                    )
+                    measurements["methods"] = len(
+                        re.findall(
+                            r"^\s*(?:public|private|protected)\s+"
+                            r"(?:static\s+)?(?:final\s+)?[\w<>\[\], ?]+\s+\w+\s*\(",
+                            generated_java,
+                            flags=re.MULTILINE,
+                        )
+                    )
+                    measurements["types"] = len(
+                        re.findall(
+                            r"^\s*(?:public\s+)?(?:static\s+)?(?:record|interface|class)\s+\w+",
+                            generated_java,
+                            flags=re.MULTILINE,
+                        )
+                    )
+                    measurements.update(result.get("llm_metrics") or {})
+            result["generation_seconds"] = time.perf_counter() - generation_start
             loader.close()
             st.session_state["unisys_java_cbact01c"] = result
         except Exception as exc:
@@ -4572,12 +4613,53 @@ def page_unisys_java():
     graph = context.get("graph") or {}
     program = context.get("program") or {}
     java_code = result.get("java_code") or ""
+    evidence_count = sum(
+        len(graph.get(key) or [])
+        for key in (
+            "paragraphs",
+            "business_rules",
+            "data_items",
+            "data_movements",
+            "file_operations",
+            "calls",
+            "called_by",
+            "files",
+        )
+    )
+    java_loc = len([line for line in java_code.splitlines() if line.strip()])
+    java_methods = len(
+        re.findall(
+            r"^\s*(?:public|private|protected)\s+"
+            r"(?:static\s+)?(?:final\s+)?[\w<>\[\], ?]+\s+\w+\s*\(",
+            java_code,
+            flags=re.MULTILINE,
+        )
+    )
+    java_nested_types = len(
+        re.findall(r"^\s*(?:public\s+)?(?:static\s+)?(?:record|interface|class)\s+\w+", java_code, flags=re.MULTILINE)
+    )
+    llm_metrics = result.get("llm_metrics") or {}
 
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("Program", program.get("program_id") or program_id)
     m2.metric("Paragraphs", len(graph.get("paragraphs") or []))
     m3.metric("Business Rules", len(graph.get("business_rules") or []))
     m4.metric("LLM Used", "Yes" if result.get("used_llm") else "No")
+
+    t1, t2, t3, t4, t5, t6 = st.columns(6)
+    t1.metric("COBOL Lines", context.get("source_line_count", 0))
+    t2.metric("Evidence Facts", evidence_count)
+    t3.metric("Java LOC", java_loc)
+    t4.metric("Java Methods", java_methods)
+    t5.metric("Generated Types", java_nested_types)
+    t6.metric("Generation Time", f"{result.get('generation_seconds', 0):.2f}s")
+
+    if result.get("used_llm"):
+        l1, l2, l3, l4 = st.columns(4)
+        l1.metric("Gemini Call Time", f"{llm_metrics.get('llm_duration_seconds', 0):.2f}s")
+        l2.metric("Prompt Tokens", llm_metrics.get("prompt_tokens") or "-")
+        l3.metric("Output Tokens", llm_metrics.get("output_tokens") or "-")
+        l4.metric("Total Tokens", llm_metrics.get("total_tokens") or "-")
 
     tab_code, tab_context = st.tabs(["Generated Java", "Graph Evidence"])
     with tab_code:

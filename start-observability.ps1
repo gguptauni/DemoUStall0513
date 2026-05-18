@@ -53,11 +53,15 @@ foreach ($process in $processes) {
     }
 
     Write-Host "Starting $($process.Name)..."
-    Start-Process `
-        -FilePath $process.FilePath `
-        -ArgumentList $process.Arguments `
-        -WorkingDirectory $process.WorkingDirectory `
-        -WindowStyle Normal
+    $startArgs = @{
+        FilePath = $process.FilePath
+        WorkingDirectory = $process.WorkingDirectory
+        WindowStyle = "Normal"
+    }
+    if ($process.Arguments.Count -gt 0) {
+        $startArgs.ArgumentList = $process.Arguments
+    }
+    Start-Process @startArgs
     Start-Sleep -Seconds 2
 }
 
